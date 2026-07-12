@@ -129,7 +129,8 @@ export default function TTSConfig({
   charLimit,
   setCharLimit,
   showToast,
-  isSettingsTab = false
+  isSettingsTab = false,
+  backendUrl = 'http://localhost:5000'
 }) {
   const [showGemini, setShowGemini] = useState(false);
   const [showOpenai, setShowOpenai] = useState(false);
@@ -197,7 +198,7 @@ export default function TTSConfig({
 
     try {
       const activeKey = provider === 'openai' ? openaiKey : (provider === 'elevenlabs' ? elevenlabsKey : '');
-      const response = await fetch(`http://localhost:5000/api/preview-voice`, {
+      const response = await fetch(`${backendUrl}/api/preview-voice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

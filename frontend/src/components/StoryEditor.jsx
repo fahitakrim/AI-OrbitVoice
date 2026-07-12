@@ -466,6 +466,7 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
             openaiKey={openaiKey}
             elevenlabsKey={elevenlabsKey}
             showToast={showToast}
+            backendUrl={backendUrl}
           />
         ) : (
           <OtherLangTTSConfig
@@ -485,6 +486,7 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
             openaiKey={openaiKey}
             elevenlabsKey={elevenlabsKey}
             showToast={showToast}
+            backendUrl={backendUrl}
           />
         )}
       </div>

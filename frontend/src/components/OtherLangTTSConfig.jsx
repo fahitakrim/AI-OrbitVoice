@@ -62,7 +62,8 @@ export default function OtherLangTTSConfig({
   setSimilarity,
   openaiKey,
   elevenlabsKey,
-  showToast
+  showToast,
+  backendUrl = 'http://localhost:5000'
 }) {
   // Previewing States
   const [previewingVoiceId, setPreviewingVoiceId] = useState(null);
@@ -113,7 +114,7 @@ export default function OtherLangTTSConfig({
 
     try {
       const activeKey = provider === 'openai' ? openaiKey : (provider === 'elevenlabs' ? elevenlabsKey : '');
-      const response = await fetch(`http://localhost:5000/api/preview-voice`, {
+      const response = await fetch(`${backendUrl}/api/preview-voice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

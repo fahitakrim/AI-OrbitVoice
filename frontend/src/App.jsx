@@ -48,7 +48,7 @@ export default function App() {
   // Sync Library Trigger
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const backendUrl = 'http://localhost:5000';
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Load saved credentials on mount
   useEffect(() => {

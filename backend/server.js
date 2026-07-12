@@ -10,7 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS for frontend requests
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://ai-orbitvoice.netlify.app'
+  ],
+  credentials: true
+}));
 // Parse JSON request bodies up to 10MB (for long stories)
 app.use(express.json({ limit: '10mb' }));
 
