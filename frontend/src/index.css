@@ -1062,8 +1062,13 @@ body::after {
 
 /* Responsive Overrides */
 @media (max-width: 900px) {
+  html, body {
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+
   .app-container {
-    overflow-y: auto;
+    overflow-y: visible;
     height: auto;
   }
   
@@ -1109,7 +1114,7 @@ body::after {
     width: 100%;
     height: auto;
     overflow: visible;
-    padding-bottom: 1rem;
+    padding-bottom: 160px; /* Expands offset to clear bottom player */
   }
   
   .col-left {
@@ -1117,7 +1122,7 @@ body::after {
     min-width: 100%;
     height: auto;
     overflow: visible;
-    padding-bottom: 120px;
+    padding-bottom: 160px; /* Expands offset to clear bottom player */
   }
   
   .audio-player-container {

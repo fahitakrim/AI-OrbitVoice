@@ -14,61 +14,19 @@ const getCharCount = (text) => {
 };
 
 // Reusable Branding Footer Component
-export function BrandingFooter({ showToast }) {
-  const handleCopy = (num, type) => {
-    navigator.clipboard.writeText(num);
-    if (showToast) showToast(`${type} number copied to clipboard!`, 'success');
-  };
-
+export function BrandingFooter() {
   return (
     <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)', fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem' }}>
         <div style={{ flex: '1 1 280px' }}>
           <div>
-            © 2026 <strong style={{ color: 'var(--text-primary)' }}>AI VoiceOrbit</strong>. Built by <strong style={{ color: 'var(--text-primary)' }}>Fahim Takrim</strong>.
+            © 2026 <strong style={{ color: 'var(--text-primary)' }}>AI VoiceOrbit</strong>. Built by <a href="https://www.facebook.com/share/1F5WW35d7p/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', fontWeight: '700', textDecoration: 'underline' }}>Fahim Takrim</a>.
           </div>
           <div style={{ color: 'var(--text-muted)', marginTop: '0.2rem' }}>
             Part of Orbit Apps — tools for learning, creativity, and everyday productivity.
           </div>
           <div style={{ marginTop: '0.5rem' }}>
-            AI VoiceOrbit is free for early users. If this tool helps you, you can support future development.
-          </div>
-        </div>
-        
-        <div style={{ flex: '0 0 auto' }}>
-          <div style={{ fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.45rem' }}>
-            Support development:
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
-              <span style={{ fontWeight: '800', color: '#d11172', fontSize: '0.72rem' }}>bKash:</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '600' }}>01980107980</span>
-              <button 
-                onClick={() => handleCopy('01980107980', 'bKash')}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', padding: '0.1rem' }}
-                title="Copy Number"
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-              </button>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
-              <span style={{ fontWeight: '800', color: '#e65100', fontSize: '0.72rem' }}>Nagad:</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '600' }}>01334205845</span>
-              <button 
-                onClick={() => handleCopy('01334205845', 'Nagad')}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', padding: '0.1rem' }}
-                title="Copy Number"
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-              </button>
-            </div>
+            AI VoiceOrbit is free for early users.
           </div>
         </div>
       </div>

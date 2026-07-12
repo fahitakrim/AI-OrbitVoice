@@ -63,7 +63,7 @@ export default function OtherLangTTSConfig({
   openaiKey,
   elevenlabsKey,
   showToast,
-  backendUrl = 'http://localhost:5000'
+  backendUrl = 'https://ai-orbitvoice.onrender.com'
 }) {
   // Previewing States
   const [previewingVoiceId, setPreviewingVoiceId] = useState(null);
