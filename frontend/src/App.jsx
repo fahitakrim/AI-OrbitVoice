@@ -285,6 +285,8 @@ export default function App() {
             openaiKey={openaiKey}
             elevenlabsKey={elevenlabsKey}
             onGenerationComplete={() => setRefreshTrigger(prev => prev + 1)}
+            refreshTrigger={refreshTrigger}
+            onRestoreStory={handleRestoreStory}
           />
         )}
 

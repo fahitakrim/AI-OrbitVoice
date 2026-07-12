@@ -250,6 +250,22 @@ export default function AudioEngine({
       setProgress(100);
       showToast('Audio compilation successful!', 'success');
       
+      // Auto-trigger master audio file browser download
+      try {
+        const downloadUrl = `${backendUrl}${data.audioUrl}`;
+        const fileName = `${(storyTitle || 'narration').trim().toLowerCase().replace(/\s+/g, '_')}_master.mp3`;
+        
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('Auto-downloaded narration MP3 to your device!', 'success');
+      } catch (err) {
+        console.error('Auto download failed:', err);
+      }
+      
       if (onGenerationComplete) onGenerationComplete();
     } catch (error) {
       console.error(error);

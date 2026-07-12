@@ -5,7 +5,8 @@ export default function HistoryList({
   backendUrl, 
   onRestoreStory, 
   showToast,
-  refreshTrigger
+  refreshTrigger,
+  isCompact = false
 }) {
   const [historyItems, setHistoryItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,36 +88,38 @@ export default function HistoryList({
   };
 
   return (
-    <div className="content-body" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 72px)', overflowY: 'auto', padding: '1.5rem 2.5rem' }}>
+    <div className={isCompact ? "" : "content-body"} style={isCompact ? { padding: 0 } : { display: 'flex', flexDirection: 'column', height: 'calc(100vh - 72px)', overflowY: 'auto', padding: '1.5rem 2.5rem' }}>
       
       {/* Control Actions Bar */}
-      <div 
-        className="glass-panel" 
-        style={{ 
-          width: '100%', 
-          marginBottom: '1.25rem', 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          background: 'var(--bg-surface)',
-          padding: '1rem 1.5rem',
-          borderRadius: '16px'
-        }}
-      >
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-          Total Recordings: <strong style={{ color: 'var(--text-primary)' }}>{historyItems.length}</strong>
-        </div>
-        <button 
-          className="btn btn-secondary" 
-          style={{ padding: '0.45rem 1.1rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', borderRadius: '9999px' }} 
-          onClick={fetchHistory}
+      {!isCompact && (
+        <div 
+          className="glass-panel" 
+          style={{ 
+            width: '100%', 
+            marginBottom: '1.25rem', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            background: 'var(--bg-surface)',
+            padding: '1rem 1.5rem',
+            borderRadius: '16px'
+          }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-          </svg>
-          Sync Disk
-        </button>
-      </div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+            Total Recordings: <strong style={{ color: 'var(--text-primary)' }}>{historyItems.length}</strong>
+          </div>
+          <button 
+            className="btn btn-secondary" 
+            style={{ padding: '0.45rem 1.1rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', borderRadius: '9999px' }} 
+            onClick={fetchHistory}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+            Sync Disk
+          </button>
+        </div>
+      )}
 
       {/* Main Content Grid */}
       {loading ? (
@@ -213,7 +216,7 @@ export default function HistoryList({
       )}
 
       {/* Branding & Support Footer */}
-      <BrandingFooter showToast={showToast} />
+      {!isCompact && <BrandingFooter showToast={showToast} />}
     </div>
   );
 }

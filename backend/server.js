@@ -30,12 +30,74 @@ if (!fs.existsSync(HISTORY_DIR)) {
 // Serve static files from history directory
 app.use('/history', express.static(HISTORY_DIR));
 
+// Background Interval: Clean up folders older than 5 minutes every 60 seconds
+setInterval(() => {
+  try {
+    if (!fs.existsSync(HISTORY_DIR)) return;
+    const now = Date.now();
+    const maxAgeMs = 5 * 60 * 1000; // 5 minutes
+
+    const items = fs.readdirSync(HISTORY_DIR);
+    for (const item of items) {
+      const itemPath = path.join(HISTORY_DIR, item);
+      const stat = fs.statSync(itemPath);
+      
+      if (stat.isDirectory()) {
+        const ageMs = now - stat.mtimeMs;
+        if (ageMs > maxAgeMs) {
+          console.log(`[Auto Cleanup] Deleting expired project folder: ${item} (Age: ${Math.round(ageMs / 1000)}s)`);
+          fs.rmSync(itemPath, { recursive: true, force: true });
+        }
+      }
+    }
+  } catch (error) {
+    console.error('[Auto Cleanup] Error running folder cleanup interval:', error.message);
+  }
+}, 60 * 1000);
+
+// FIFO Limit: Ensure only up to 10 project directories exist
+function enforceHistoryLimit(excludeProjectId) {
+  try {
+    if (!fs.existsSync(HISTORY_DIR)) return;
+    
+    const dirs = fs.readdirSync(HISTORY_DIR)
+      .map(name => {
+        const fullPath = path.join(HISTORY_DIR, name);
+        return {
+          name,
+          fullPath,
+          stat: fs.statSync(fullPath)
+        };
+      })
+      .filter(item => item.stat.isDirectory() && item.name !== excludeProjectId);
+
+    if (dirs.length >= 9) { // If there are already 9 other folders, free space for the 10th one
+      dirs.sort((a, b) => a.stat.mtimeMs - b.stat.mtimeMs);
+      const countToDelete = dirs.length - 8;
+      for (let i = 0; i < countToDelete; i++) {
+        console.log(`[FIFO Limit] Exceeded project cap. Deleting oldest project folder: ${dirs[i].name}`);
+        fs.rmSync(dirs[i].fullPath, { recursive: true, force: true });
+      }
+    }
+  } catch (error) {
+    console.error('[FIFO Limit] Error enforcing folder limit:', error.message);
+  }
+}
+
 // Helper: Make sure project directories exist
 function getProjectDirs(projectId) {
   const projDir = path.join(HISTORY_DIR, projectId);
   const chunksDir = path.join(projDir, 'chunks');
-  if (!fs.existsSync(projDir)) fs.mkdirSync(projDir, { recursive: true });
-  if (!fs.existsSync(chunksDir)) fs.mkdirSync(chunksDir, { recursive: true });
+  
+  if (!fs.existsSync(projDir)) {
+    enforceHistoryLimit(projectId);
+    fs.mkdirSync(projDir, { recursive: true });
+  }
+  
+  if (!fs.existsSync(chunksDir)) {
+    fs.mkdirSync(chunksDir, { recursive: true });
+  }
+  
   return { projDir, chunksDir };
 }
 

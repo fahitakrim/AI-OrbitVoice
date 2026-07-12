@@ -87,7 +87,10 @@ export default function TTSConfig({
   setCharLimit,
   showToast,
   isSettingsTab = false,
-  backendUrl = 'https://ai-orbitvoice.onrender.com'
+  backendUrl = 'https://ai-orbitvoice.onrender.com',
+  showOnlyVoiceGrid = false,
+  hideVoiceGrid = false,
+  onSelectVoice
 }) {
   const [showGemini, setShowGemini] = useState(false);
   const [showOpenai, setShowOpenai] = useState(false);
@@ -339,126 +342,130 @@ export default function TTSConfig({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       
       {/* Card 1: Voice Engine selection */}
-      <div className="glass-panel" style={{ padding: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-          <div className="form-label" style={{ margin: 0, fontWeight: '700' }}>Voice Engine</div>
-          <span 
-            className="badge-pill badge-pill-blue"
-            style={{ 
-              fontSize: '0.6rem', 
-              fontWeight: 'bold', 
-              padding: '0.12rem 0.45rem',
-              border: `1px solid ${currentMetadata.type === 'free' ? 'var(--accent-blue)' : 'var(--border-color)'}`,
-              color: currentMetadata.type === 'free' ? 'var(--accent-blue)' : 'var(--text-secondary)',
-              background: currentMetadata.type === 'free' ? 'var(--accent-blue-dim)' : 'rgba(255,255,255,0.02)'
-            }}
+      {!showOnlyVoiceGrid && (
+        <div className="glass-panel" style={{ padding: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+            <div className="form-label" style={{ margin: 0, fontWeight: '700' }}>Voice Engine</div>
+            <span 
+              className="badge-pill badge-pill-blue"
+              style={{ 
+                fontSize: '0.6rem', 
+                fontWeight: 'bold', 
+                padding: '0.12rem 0.45rem',
+                border: `1px solid ${currentMetadata.type === 'free' ? 'var(--accent-blue)' : 'var(--border-color)'}`,
+                color: currentMetadata.type === 'free' ? 'var(--accent-blue)' : 'var(--text-secondary)',
+                background: currentMetadata.type === 'free' ? 'var(--accent-blue-dim)' : 'rgba(255,255,255,0.02)'
+              }}
+            >
+              {currentMetadata.badge}
+            </span>
+          </div>
+          
+          <select 
+            className="form-select" 
+            value={provider} 
+            style={{ fontSize: '0.82rem', padding: '0.45rem 0.75rem', borderRadius: '8px' }}
+            onChange={(e) => setProvider(e.target.value)}
           >
-            {currentMetadata.badge}
-          </span>
+            <option value="edge">Microsoft Edge (Free Neural)</option>
+            <option value="google">Google Translate (Free Robotic)</option>
+            <option value="openai">OpenAI TTS (API Key Required)</option>
+            <option value="elevenlabs">ElevenLabs (API Key Required)</option>
+          </select>
         </div>
-        
-        <select 
-          className="form-select" 
-          value={provider} 
-          style={{ fontSize: '0.82rem', padding: '0.45rem 0.75rem', borderRadius: '8px' }}
-          onChange={(e) => setProvider(e.target.value)}
-        >
-          <option value="edge">Microsoft Edge (Free Neural)</option>
-          <option value="google">Google Translate (Free Robotic)</option>
-          <option value="openai">OpenAI TTS (API Key Required)</option>
-          <option value="elevenlabs">ElevenLabs (API Key Required)</option>
-        </select>
-      </div>
+      )}
 
       {/* Card 2: Voice Roster selection */}
-      <div className="glass-panel" style={{ padding: '1rem' }}>
-        <div className="form-label" style={{ marginBottom: '0.5rem', fontWeight: '700' }}>Choose Narrator Voice</div>
-        
-        <div className="voice-grid">
-          {activeVoices.map((v) => {
-            const isCurrentPreview = previewingVoiceId === v.id;
-            const isSelected = voice === v.id;
-            return (
-              <div
-                key={v.id}
-                className={`voice-card ${isSelected ? 'selected' : ''}`}
-                onClick={() => setVoice(v.id)}
-                title={v.description}
-                style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0.6rem', borderRadius: '8px' }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="voice-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.8rem' }}>
-                    {v.name}
-                  </div>
-                  <div className="voice-meta" style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
-                    {v.id.includes('-') ? v.id.split('-').slice(1).join('-') : v.id.substring(0, 10)}
-                  </div>
-                </div>
-                
-                {/* Selected Accent Waveform Decoration */}
-                {isSelected && (
-                  <div className="mini-waveform" style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '10px', margin: '0 0.4rem', opacity: 0.8 }}>
-                    <div style={{ width: '1.5px', height: '100%', background: 'var(--accent-blue)', animation: 'dance 0.6s ease infinite alternate' }} />
-                    <div style={{ width: '1.5px', height: '60%', background: 'var(--accent-blue)', animation: 'dance 0.6s ease infinite alternate', animationDelay: '0.15s' }} />
-                    <div style={{ width: '1.5px', height: '80%', background: 'var(--accent-blue)', animation: 'dance 0.6s ease infinite alternate', animationDelay: '0.30s' }} />
-                  </div>
-                )}
-
-                <button
-                  className={`player-btn-sec preview-btn ${isCurrentPreview ? 'active' : ''}`}
-                  onClick={(e) => handlePreviewVoice(e, v.id)}
-                  style={{ 
-                    width: '22px', 
-                    height: '22px', 
-                    borderRadius: '50%', 
-                    background: isCurrentPreview ? 'var(--accent-blue)' : 'var(--border-color)', 
-                    color: isCurrentPreview ? '#ffffff' : 'var(--text-secondary)',
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    marginLeft: '0.2rem',
-                    flexShrink: 0,
-                    transition: 'all 0.15s ease'
-                  }}
-                  title="Preview Voice"
+      {!hideVoiceGrid && (
+        <div className="glass-panel" style={{ padding: '1rem' }}>
+          <div className="form-label" style={{ marginBottom: '0.5rem', fontWeight: '700' }}>Choose Narrator Voice</div>
+          
+          <div className="voice-grid">
+            {activeVoices.map((v) => {
+              const isCurrentPreview = previewingVoiceId === v.id;
+              const isSelected = voice === v.id;
+              return (
+                <div
+                  key={v.id}
+                  className={`voice-card ${isSelected ? 'selected' : ''}`}
+                  onClick={() => { setVoice(v.id); if (onSelectVoice) onSelectVoice(); }}
+                  title={v.description}
+                  style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0.6rem', borderRadius: '8px' }}
                 >
-                  {isCurrentPreview && previewLoading ? (
-                    <div className="spinner" style={{ width: '9px', height: '9px', borderWidth: '1.2px', borderTopColor: '#fff', animationDuration: '0.6s' }} />
-                  ) : isCurrentPreview && previewPlaying ? (
-                    <svg width="6" height="6" viewBox="0 0 24 24" fill="currentColor">
-                      <rect x="6" y="4" width="4" height="16" />
-                      <rect x="14" y="4" width="4" height="16" />
-                    </svg>
-                  ) : (
-                    <svg width="6" height="6" viewBox="0 0 24 24" fill="currentColor">
-                      <polygon points="5 3 19 12 5 21" />
-                    </svg>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="voice-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.8rem' }}>
+                      {v.name}
+                    </div>
+                    <div className="voice-meta" style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
+                      {v.id.includes('-') ? v.id.split('-').slice(1).join('-') : v.id.substring(0, 10)}
+                    </div>
+                  </div>
+                  
+                  {/* Selected Accent Waveform Decoration */}
+                  {isSelected && (
+                    <div className="mini-waveform" style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '10px', margin: '0 0.4rem', opacity: 0.8 }}>
+                      <div style={{ width: '1.5px', height: '100%', background: 'var(--accent-blue)', animation: 'dance 0.6s ease infinite alternate' }} />
+                      <div style={{ width: '1.5px', height: '60%', background: 'var(--accent-blue)', animation: 'dance 0.6s ease infinite alternate', animationDelay: '0.15s' }} />
+                      <div style={{ width: '1.5px', height: '80%', background: 'var(--accent-blue)', animation: 'dance 0.6s ease infinite alternate', animationDelay: '0.30s' }} />
+                    </div>
                   )}
-                </button>
-              </div>
-            );
-          })}
-        </div>
 
-        <div 
-          style={{ 
-            padding: '0.5rem 0.65rem', 
-            borderRadius: '8px', 
-            background: 'var(--bg-base)', 
-            border: '1px solid var(--border-color)', 
-            fontSize: '0.72rem', 
-            color: 'var(--text-secondary)',
-            lineHeight: '1.4'
-          }}
-        >
-          <strong style={{ color: 'var(--accent-blue)' }}>Voice Info:</strong> {activeVoices.find(v => v.id === voice)?.description || 'No voice description.'}
+                  <button
+                    className={`player-btn-sec preview-btn ${isCurrentPreview ? 'active' : ''}`}
+                    onClick={(e) => handlePreviewVoice(e, v.id)}
+                    style={{ 
+                      width: '22px', 
+                      height: '22px', 
+                      borderRadius: '50%', 
+                      background: isCurrentPreview ? 'var(--accent-blue)' : 'var(--border-color)', 
+                      color: isCurrentPreview ? '#ffffff' : 'var(--text-secondary)',
+                      border: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      marginLeft: '0.2rem',
+                      flexShrink: 0,
+                      transition: 'all 0.15s ease'
+                    }}
+                    title="Preview Voice"
+                  >
+                    {isCurrentPreview && previewLoading ? (
+                      <div className="spinner" style={{ width: '9px', height: '9px', borderWidth: '1.2px', borderTopColor: '#fff', animationDuration: '0.6s' }} />
+                    ) : isCurrentPreview && previewPlaying ? (
+                      <svg width="6" height="6" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="4" width="4" height="16" />
+                        <rect x="14" y="4" width="4" height="16" />
+                      </svg>
+                    ) : (
+                      <svg width="6" height="6" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <div 
+            style={{ 
+              padding: '0.5rem 0.65rem', 
+              borderRadius: '8px', 
+              background: 'var(--bg-base)', 
+              border: '1px solid var(--border-color)', 
+              fontSize: '0.72rem', 
+              color: 'var(--text-secondary)',
+              lineHeight: '1.4'
+            }}
+          >
+            <strong style={{ color: 'var(--accent-blue)' }}>Voice Info:</strong> {activeVoices.find(v => v.id === voice)?.description || 'No voice description.'}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Card 3: Speed & Pitch Sliders */}
-      {(provider === 'openai' || provider === 'edge' || provider === 'elevenlabs') && (
+      {!showOnlyVoiceGrid && (provider === 'openai' || provider === 'edge' || provider === 'elevenlabs') && (
         <div className="glass-panel" style={{ padding: '1rem' }}>
           <div className="form-label" style={{ marginBottom: '0.6rem', fontWeight: '700' }}>Speed & Pitch Settings</div>
 
@@ -544,14 +551,14 @@ export default function TTSConfig({
       )}
 
       {/* Engine active message block */}
-      {provider === 'edge' && (
+      {!showOnlyVoiceGrid && provider === 'edge' && (
         <div style={{ padding: '0.5rem 0.75rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--accent-blue-dim)', fontSize: '0.72rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: '600' }}>
           <span style={{ color: 'var(--accent-green)' }}>✓</span>
           <span>Free Engine Active</span>
         </div>
       )}
       
-      {provider === 'google' && (
+      {!showOnlyVoiceGrid && provider === 'google' && (
         <div style={{ padding: '0.5rem 0.75rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--accent-blue-dim)', fontSize: '0.72rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: '600' }}>
           <span style={{ color: 'var(--accent-green)' }}>✓</span>
           <span>Free Engine Active</span>

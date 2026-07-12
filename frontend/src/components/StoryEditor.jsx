@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TTSConfig from './TTSConfig';
 import OtherLangTTSConfig from './OtherLangTTSConfig';
 import AudioEngine from './AudioEngine';
+import HistoryList from './HistoryList';
 
 const getWordCount = (text) => {
   if (!text) return 0;
@@ -44,7 +45,13 @@ export default function StoryEditor({
   showToast,
   backendUrl,
   charLimit,
+  setCharLimit,
   geminiKey,
+  setGeminiKey,
+  openaiKey,
+  setOpenaiKey,
+  elevenlabsKey,
+  setElevenlabsKey,
   
   // TTS configuration props
   provider, 
@@ -59,12 +66,127 @@ export default function StoryEditor({
   setStability, 
   similarity, 
   setSimilarity,
-  openaiKey,
-  elevenlabsKey,
-  onGenerationComplete
+  onGenerationComplete,
+  refreshTrigger,
+  onRestoreStory
 }) {
   const [prompt, setPrompt] = useState('');
   const [generatingStory, setGeneratingStory] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isVoiceDrawerOpen, setIsVoiceDrawerOpen] = useState(false);
+  
+  const [activePreviewing, setActivePreviewing] = useState(false);
+  const activePreviewAudioRef = React.useRef(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (activePreviewAudioRef.current) {
+        activePreviewAudioRef.current.pause();
+      }
+    };
+  }, []);
+
+  const handlePreviewActiveVoice = async () => {
+    if (activePreviewing) {
+      if (activePreviewAudioRef.current) {
+        activePreviewAudioRef.current.pause();
+      }
+      setActivePreviewing(false);
+      return;
+    }
+    
+    setActivePreviewing(true);
+    try {
+      const activeKey = provider === 'openai' ? openaiKey : (provider === 'elevenlabs' ? elevenlabsKey : '');
+      const response = await fetch(`${backendUrl}/api/preview-voice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider,
+          voice,
+          apiKey: activeKey,
+          settings: { speed, pitch }
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to fetch preview audio');
+      }
+
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      
+      const audio = new Audio(audioUrl);
+      activePreviewAudioRef.current = audio;
+      
+      audio.oncanplaythrough = () => {
+        audio.play().then(() => {
+          setActivePreviewing(true);
+        }).catch(err => {
+          console.error(err);
+          setActivePreviewing(false);
+        });
+      };
+      
+      audio.onended = () => setActivePreviewing(false);
+      audio.onerror = () => {
+        showToast('Playback error.', 'error');
+        setActivePreviewing(false);
+      };
+    } catch (err) {
+      console.error(err);
+      showToast(err.message, 'error');
+      setActivePreviewing(false);
+    }
+  };
+
+  const getActiveVoiceName = () => {
+    const edge = [
+      { id: 'en-US-AvaNeural', name: 'Ava (US English)' },
+      { id: 'en-US-AndrewNeural', name: 'Andrew (US English)' },
+      { id: 'en-US-EmmaNeural', name: 'Emma (US English)' },
+      { id: 'en-US-BrianNeural', name: 'Brian (US English)' },
+      { id: 'bn-BD-NabanitaNeural', name: 'Nabanita (Bangla)' },
+      { id: 'bn-BD-PradeepNeural', name: 'Pradeep (Bangla)' },
+      { id: 'bn-IN-TanishaaNeural', name: 'Tanishaa (Bangla - India)' },
+      { id: 'bn-IN-BashkarNeural', name: 'Bashkar (Bangla - India)' },
+      { id: 'hi-IN-SwaraNeural', name: 'Swara (Hindi)' },
+      { id: 'hi-IN-MadhurNeural', name: 'Madhur (Hindi)' }
+    ].find(v => v.id === voice);
+    if (edge) return edge.name;
+
+    const openai = [
+      { id: 'alloy', name: 'Alloy (OpenAI)' },
+      { id: 'echo', name: 'Echo (OpenAI)' },
+      { id: 'fable', name: 'Fable (OpenAI)' },
+      { id: 'onyx', name: 'Onyx (OpenAI)' },
+      { id: 'nova', name: 'Nova (OpenAI)' },
+      { id: 'shimmer', name: 'Shimmer (OpenAI)' }
+    ].find(v => v.id === voice);
+    if (openai) return openai.name;
+
+    const eleven = [
+      { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel (ElevenLabs)' },
+      { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi (ElevenLabs)' },
+      { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella (ElevenLabs)' },
+      { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni (ElevenLabs)' },
+      { id: 'MF3mGyEYCl7XYWbV9VbO', name: 'Elli (ElevenLabs)' },
+      { id: 'TxGEqn7nUaNZTR5JgIec', name: 'Josh (ElevenLabs)' },
+      { id: 'VR6A1YjmeZasKIG2lkFc', name: 'Arnold (ElevenLabs)' },
+      { id: 'pNInz6obpgfrhhF21yNZ', name: 'Adam (ElevenLabs)' },
+      { id: 'yoZ06aOLSspZKLgp3vPF', name: 'Sam (ElevenLabs)' }
+    ].find(v => v.id === voice);
+    if (eleven) return eleven.name;
+
+    const google = [
+      { id: 'bn', name: 'Google Bangla (Unisex)' },
+      { id: 'hi', name: 'Google Hindi (Unisex)' }
+    ].find(v => v.id === voice);
+    if (google) return google.name;
+
+    return voice;
+  };
 
   const handleGenerateStory = async () => {
     if (!prompt || prompt.trim() === '') {
@@ -227,10 +349,10 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
 
   const getPlaceholderText = () => {
     if (studioLanguage === 'bn') {
-      return 'গল্পটি এখানে লিখুন বা পেস্ট করুন... The system will compile it into a single MP3 voiceover!';
+      return 'গল্পটি এখানে লিখুন বা পেস্ট করুন...';
     }
     if (studioLanguage === 'hi') {
-      return 'अपनी कहानी यहाँ लिखें या पेस्ट करें... The system will compile it into a single MP3 voiceover!';
+      return 'अपनी कहानी यहाँ लिखें या पेस्ट करें...';
     }
     return 'Paste your story, reel script, documentary narration, or product voiceover here...';
   };
@@ -242,13 +364,169 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
   };
 
   return (
-    <div className="content-body" style={{ animation: 'fadeIn 0.4s ease-out' }}>
+    <div className="content-body" style={{ animation: 'fadeIn 0.4s ease-out', height: 'auto', overflowY: 'auto', padding: '1.5rem 1.5rem 120px 1.5rem' }}>
       
-      {/* Left Workspace Column: Script Editor & Main Action Trigger */}
-      <div className="col-right">
-        {/* Top Status and Project Input bar */}
-        <div className="glass-panel" style={{ padding: '1rem 1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+      {/* Drawer Overlay backdrop */}
+      <div 
+        className={`drawer-overlay ${isSettingsOpen || isVoiceDrawerOpen ? 'open' : ''}`}
+        onClick={() => {
+          setIsSettingsOpen(false);
+          setIsVoiceDrawerOpen(false);
+        }}
+      />
+
+      {/* Right Drawer (Sliders & API Credentials) */}
+      <div className={`side-drawer ${isSettingsOpen ? 'open' : ''}`}>
+        <div className="drawer-header">
+          <div className="drawer-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '0.2rem' }}>
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            Voice Settings
+          </div>
+          <button className="drawer-close" onClick={() => setIsSettingsOpen(false)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div className="drawer-body">
+          {studioLanguage === 'en' ? (
+            <TTSConfig
+              provider={provider}
+              setProvider={setProvider}
+              voice={voice}
+              setVoice={setVoice}
+              speed={speed}
+              setSpeed={setSpeed}
+              pitch={pitch}
+              setPitch={setPitch}
+              stability={stability}
+              setStability={setStability}
+              similarity={similarity}
+              setSimilarity={setSimilarity}
+              geminiKey={geminiKey}
+              setGeminiKey={setGeminiKey}
+              openaiKey={openaiKey}
+              setOpenaiKey={setOpenaiKey}
+              elevenlabsKey={elevenlabsKey}
+              setElevenlabsKey={setElevenlabsKey}
+              charLimit={charLimit}
+              setCharLimit={setCharLimit}
+              showToast={showToast}
+              backendUrl={backendUrl}
+              hideVoiceGrid={true}
+            />
+          ) : (
+            <OtherLangTTSConfig
+              studioLanguage={studioLanguage}
+              provider={provider}
+              setProvider={setProvider}
+              voice={voice}
+              setVoice={setVoice}
+              speed={speed}
+              setSpeed={setSpeed}
+              pitch={pitch}
+              setPitch={setPitch}
+              stability={stability}
+              setStability={setStability}
+              similarity={similarity}
+              setSimilarity={setSimilarity}
+              openaiKey={openaiKey}
+              elevenlabsKey={elevenlabsKey}
+              showToast={showToast}
+              backendUrl={backendUrl}
+              hideVoiceGrid={true}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Drawer (Voice Artist Selector) */}
+      <div className={`bottom-drawer ${isVoiceDrawerOpen ? 'open' : ''}`}>
+        <div className="drawer-header">
+          <div className="drawer-title">
+            🗣 Select Voice Artist ({studioLanguage === 'en' ? 'English' : (studioLanguage === 'bn' ? 'Bangla' : 'Hindi')})
+          </div>
+          <button className="drawer-close" onClick={() => setIsVoiceDrawerOpen(false)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div className="drawer-body">
+          {studioLanguage === 'en' ? (
+            <TTSConfig
+              provider={provider}
+              setProvider={setProvider}
+              voice={voice}
+              setVoice={setVoice}
+              speed={speed}
+              setSpeed={setSpeed}
+              pitch={pitch}
+              setPitch={setPitch}
+              stability={stability}
+              setStability={setStability}
+              similarity={similarity}
+              setSimilarity={setSimilarity}
+              geminiKey={geminiKey}
+              setGeminiKey={setGeminiKey}
+              openaiKey={openaiKey}
+              setOpenaiKey={setOpenaiKey}
+              elevenlabsKey={elevenlabsKey}
+              setElevenlabsKey={setElevenlabsKey}
+              charLimit={charLimit}
+              setCharLimit={setCharLimit}
+              showToast={showToast}
+              backendUrl={backendUrl}
+              showOnlyVoiceGrid={true}
+              onSelectVoice={() => setIsVoiceDrawerOpen(false)}
+            />
+          ) : (
+            <OtherLangTTSConfig
+              studioLanguage={studioLanguage}
+              provider={provider}
+              setProvider={setProvider}
+              voice={voice}
+              setVoice={setVoice}
+              speed={speed}
+              setSpeed={setSpeed}
+              pitch={pitch}
+              setPitch={setPitch}
+              stability={stability}
+              setStability={setStability}
+              similarity={similarity}
+              setSimilarity={setSimilarity}
+              openaiKey={openaiKey}
+              elevenlabsKey={elevenlabsKey}
+              showToast={showToast}
+              backendUrl={backendUrl}
+              showOnlyVoiceGrid={true}
+              onSelectVoice={() => setIsVoiceDrawerOpen(false)}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Centered NoteGPT Studio Shell */}
+      <div style={{ maxWidth: '840px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        
+        {/* Centered Page Header */}
+        <div style={{ textAlign: 'center', padding: '1rem 0 1.75rem 0' }}>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: '900', letterSpacing: '-0.04em', color: 'var(--text-primary)', marginBottom: '0.55rem' }}>
+            Text to Speech
+          </h1>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '500', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
+            Create natural, emotional speech in seconds for commercial use to help you earn.
+          </p>
+        </div>
+
+        {/* Text Input Panel */}
+        <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', background: 'var(--bg-surface)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <span className="badge-pill badge-pill-blue" style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>
                 {getLanguageLabel()}
@@ -256,134 +534,166 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
               <input 
                 type="text" 
                 className="form-input" 
-                style={{ width: '250px', padding: '0.35rem 0.75rem', fontSize: '0.85rem', fontWeight: '700', borderRadius: '6px' }}
+                style={{ width: '220px', padding: '0.35rem 0.75rem', fontSize: '0.85rem', fontWeight: '700', borderRadius: '6px' }}
                 value={storyTitle}
                 onChange={(e) => setStoryTitle(e.target.value)}
-                placeholder="Recording Title (e.g. Episode 1)"
+                placeholder="Name your file (e.g. My Recording)"
               />
             </div>
             
-            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-              <span>Chunks: <strong style={{ color: 'var(--text-primary)' }}>{Math.max(1, Math.ceil(storyText.length / 3000))}</strong></span>
-              <span>Estimated Duration: <strong style={{ color: 'var(--accent-blue)' }}>{Math.round(getWordCount(storyText) * (studioLanguage === 'en' ? 0.4 : 0.45))}s</strong></span>
+            {/* Formatting Tools */}
+            <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
+              <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleCleanText} title="Cleans script formatting">
+                🧹 Clean Text
+              </button>
+              <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleAutoFormatPunctuation} title="Adds punctuation clauses for breath pauses">
+                ⏱ Add Pauses
+              </button>
+              <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleSplitPreview} title="Splits narrative text block into multi-row compiler segments">
+                ✂ Split into Chunks
+              </button>
             </div>
           </div>
-        </div>
 
-        <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-          
-          {/* Canvas Formatting Helper Toolbar (Positioned at the top of the editor card) */}
-          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-            <button 
-              className="btn btn-secondary" 
-              style={{ padding: '0.35rem 0.85rem', fontSize: '0.76rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderRadius: '9999px' }}
-              onClick={handleCleanText}
-              title="Fix double spacing and normalize whitespace"
-            >
-              Clean Text
-            </button>
-            <button 
-              className="btn btn-secondary" 
-              style={{ padding: '0.35rem 0.85rem', fontSize: '0.76rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderRadius: '9999px' }}
-              onClick={handleAutoFormatPunctuation}
-              title="Adds commas and ellipses at natural breaks to make the voice sound highly realistic"
-            >
-              Add Pauses
-            </button>
-            <button 
-              className="btn btn-secondary" 
-              style={{ padding: '0.35rem 0.85rem', fontSize: '0.76rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderRadius: '9999px' }}
-              onClick={handleSplitPreview}
-              title="Preview how many audio segments this script will create"
-            >
-              Split into Chunks
-            </button>
-            
-            <button 
-              className="btn btn-danger" 
-              style={{ padding: '0.35rem 0.85rem', fontSize: '0.76rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderRadius: '9999px', marginLeft: 'auto' }}
-              onClick={() => {
-                if (window.confirm('Are you sure you want to clear the canvas text?')) {
-                  setStoryText('');
-                }
+          {/* Script Text Area */}
+          <div className="form-group" style={{ margin: 0, position: 'relative' }}>
+            <textarea
+              className="form-input"
+              rows={8}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                resize: 'vertical',
+                fontSize: '0.94rem',
+                color: 'var(--text-primary)',
+                padding: '0.25rem 0.5rem',
+                fontFamily: 'var(--font-sans)',
+                lineHeight: '1.6',
+                boxShadow: 'none',
+                minHeight: '200px'
               }}
-            >
-              Clear
-            </button>
-          </div>
-
-          {/* Editor Canvas Area */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', marginTop: '1rem', height: '0' }}>
-            {storyText === '' && (
-              <div className="use-case-container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', border: '1px dashed var(--border-color)', margin: '1rem 0', borderRadius: '12px', textAlign: 'center', background: 'var(--bg-base)' }}>
-                <div style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: '800', color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                  Select a Studio Template to Begin
-                </div>
-                
-                {studioLanguage === 'en' ? (
-                  <>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', maxWidth: '440px', margin: '0 auto' }}>
-                      Click a template below to load a sample script text optimized for speech compilation.
-                    </p>
-                    <div className="use-case-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginTop: '0.5rem' }}>
-                      <div className="use-case-card" onClick={() => handleLoadTemplate('reels')} style={{ padding: '1.1rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', background: 'var(--bg-surface)', transition: 'all 0.25s ease', textAlign: 'left' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.3rem' }}>🎬 REELS & SHORTS</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Quick pacing, high hooks. Perfect for social.</div>
-                      </div>
-                      <div className="use-case-card" onClick={() => handleLoadTemplate('story')} style={{ padding: '1.1rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', background: 'var(--bg-surface)', transition: 'all 0.25s ease', textAlign: 'left' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.3rem' }}>📖 NARRATIVE STORY</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Dramatic pacing. Ideal for audiobooks.</div>
-                      </div>
-                      <div className="use-case-card" onClick={() => handleLoadTemplate('education')} style={{ padding: '1.1rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', background: 'var(--bg-surface)', transition: 'all 0.25s ease', textAlign: 'left' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.3rem' }}>🎓 PRESENTATION</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Clear speech pacing. Best for tutorials.</div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', maxWidth: '440px', margin: '0 auto' }}>
-                      Click a template below to load a sample script in {studioLanguage === 'bn' ? 'Bangla' : 'Hindi'} optimized with natural Indic breath markers.
-                    </p>
-                    <div className="use-case-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem', marginTop: '0.5rem', maxWidth: '300px', margin: '0.5rem auto 0 auto' }}>
-                      {studioLanguage === 'bn' ? (
-                        <div className="use-case-card" onClick={() => handleLoadTemplate('bn')} style={{ padding: '1.1rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', background: 'var(--bg-surface)', transition: 'all 0.25s ease', textAlign: 'left' }}>
-                          <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.3rem' }}>🇧🇩 BANGLA TEMPLATE</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Bengali narrative script. Recommended for NabanitaNeural.</div>
-                        </div>
-                      ) : (
-                        <div className="use-case-card" onClick={() => handleLoadTemplate('hi')} style={{ padding: '1.1rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', background: 'var(--bg-surface)', transition: 'all 0.25s ease', textAlign: 'left' }}>
-                          <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.3rem' }}>🇮🇳 HINDI TEMPLATE</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Hindi narrative script. Recommended for SwaraNeural.</div>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-            <textarea 
-              className="form-textarea"
-              style={{ flex: 1, height: '100%', fontSize: '0.94rem', lineHeight: '1.7', background: 'transparent', border: 'none', padding: '0.25rem 0', overflowY: 'auto', outline: 'none', resize: 'none', color: 'var(--text-primary)' }}
               placeholder={getPlaceholderText()}
               value={storyText}
               onChange={(e) => setStoryText(e.target.value)}
             />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '1.25rem', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <span>Words: <strong>{getWordCount(storyText)}</strong></span>
-              <span>Characters: <strong style={{ color: storyText.length > charLimit ? 'var(--accent-danger)' : 'inherit' }}>{getCharCount(storyText)} / {charLimit}</strong></span>
-            </div>
-            <div style={{ fontSize: '0.72rem', opacity: 0.8, textAlign: 'right' }}>
-              <div>Tip: Use commas, periods, and ellipses (...) for natural pauses. Bracket pause markers are automatically cleaned.</div>
-              <div style={{ marginTop: '0.15rem', opacity: 0.7 }}>* Splits script by paragraphs to compile long recordings safely</div>
+            
+            {/* Sub-card actions (inside the text editor card bottom) */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem' }}>
+              <button 
+                className="btn btn-secondary" 
+                style={{ borderRadius: '6px', fontSize: '0.74rem', padding: '0.35rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }} 
+                onClick={() => setIsVoiceDrawerOpen(true)}
+              >
+                🗣 {getActiveVoiceName()} ▾
+              </button>
+              
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                {storyText.length.toLocaleString()} / 30,000 chars
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Generate Voiceover Compilation Engine (Now placed directly under the text editor!) */}
+        {/* Active Voice Bar */}
+        <div 
+          className="glass-panel" 
+          style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            padding: '0.85rem 1.25rem',
+            background: 'var(--bg-surface)', 
+            border: '1px solid var(--border-color)',
+            borderRadius: '12px',
+            marginTop: '0.4rem',
+            marginBottom: '0.4rem'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {/* Play/Preview active voice button */}
+            <button 
+              className={`player-btn-circle ${activePreviewing ? 'active' : ''}`}
+              style={{ 
+                width: '34px', 
+                height: '34px', 
+                flexShrink: 0,
+                borderRadius: '50%',
+                background: 'var(--accent-blue)',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+              onClick={handlePreviewActiveVoice}
+              title="Preview Selected Voice Artist"
+            >
+              {activePreviewing ? (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff">
+                  <rect x="6" y="4" width="4" height="16" />
+                  <rect x="14" y="4" width="4" height="16" />
+                </svg>
+              ) : (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style={{ marginLeft: '2px' }}>
+                  <polygon points="5 3 19 12 5 21" />
+                </svg>
+              )}
+            </button>
+            
+            {/* Voice metadata label details */}
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '0.88rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+                {getActiveVoiceName()}
+              </div>
+              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.15rem' }}>
+                <span className="badge-pill badge-pill-blue" style={{ fontSize: '0.62rem', padding: '0.1rem 0.4rem' }}>
+                  {provider.toUpperCase()}
+                </span>
+                <span className="badge-pill badge-pill-violet" style={{ fontSize: '0.62rem', padding: '0.1rem 0.4rem' }}>
+                  {studioLanguage === 'en' ? 'ENGLISH' : (studioLanguage === 'bn' ? 'BANGLA' : 'HINDI')}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Settings & Change buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button 
+              className="btn btn-secondary" 
+              style={{ padding: '0.4rem 0.85rem', fontSize: '0.74rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              onClick={() => setIsSettingsOpen(true)}
+              title="Configure Voice Settings (Speed, Pitch, API Keys)"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="4" y1="21" x2="4" y2="14" />
+                <line x1="4" y1="10" x2="4" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12" y2="3" />
+                <line x1="20" y1="21" x2="20" y2="16" />
+                <line x1="20" y1="12" x2="20" y2="3" />
+                <line x1="1" y1="14" x2="7" y2="14" />
+                <line x1="9" y1="8" x2="15" y2="8" />
+                <line x1="17" y1="16" x2="23" y2="16" />
+              </svg>
+              Adjust
+            </button>
+            
+            <button 
+              className="btn btn-primary" 
+              style={{ padding: '0.4rem 0.85rem', fontSize: '0.74rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              onClick={() => setIsVoiceDrawerOpen(true)}
+              title="Change Voice Artist"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M17 2.1l4 4-4 4M3 12h18M21 21.9l-4-4 4-4" />
+              </svg>
+              Change Voice
+            </button>
+          </div>
+        </div>
+
+        {/* Generate Voiceover Compilation CTA Button */}
         <AudioEngine
           storyTitle={storyTitle}
           storyText={storyText}
@@ -401,54 +711,12 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
           onGenerationComplete={onGenerationComplete}
         />
 
-        {/* Branding & Support Footer */}
-        <BrandingFooter showToast={showToast} />
-      </div>
+        {/* Bottom Brand footer inside centered shell */}
+        <div style={{ marginTop: '1.5rem', opacity: 0.8 }}>
+          <BrandingFooter />
+        </div>
 
-      {/* Right Column: Voice Settings Control Panel Only */}
-      <div className="col-left">
-        {studioLanguage === 'en' ? (
-          <TTSConfig
-            provider={provider}
-            setProvider={setProvider}
-            voice={voice}
-            setVoice={setVoice}
-            speed={speed}
-            setSpeed={setSpeed}
-            pitch={pitch}
-            setPitch={setPitch}
-            stability={stability}
-            setStability={setStability}
-            similarity={similarity}
-            setSimilarity={setSimilarity}
-            openaiKey={openaiKey}
-            elevenlabsKey={elevenlabsKey}
-            showToast={showToast}
-            backendUrl={backendUrl}
-          />
-        ) : (
-          <OtherLangTTSConfig
-            studioLanguage={studioLanguage}
-            provider={provider}
-            setProvider={setProvider}
-            voice={voice}
-            setVoice={setVoice}
-            speed={speed}
-            setSpeed={setSpeed}
-            pitch={pitch}
-            setPitch={setPitch}
-            stability={stability}
-            setStability={setStability}
-            similarity={similarity}
-            setSimilarity={setSimilarity}
-            openaiKey={openaiKey}
-            elevenlabsKey={elevenlabsKey}
-            showToast={showToast}
-            backendUrl={backendUrl}
-          />
-        )}
       </div>
-
     </div>
   );
 }
