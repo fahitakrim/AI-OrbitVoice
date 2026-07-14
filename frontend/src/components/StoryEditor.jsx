@@ -363,109 +363,20 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
     return 'ENGLISH STUDIO';
   };
 
-  const getVoiceCharacteristics = () => {
-    const v = voice.toLowerCase();
-    const isFemale = (
-      v.includes('ava') || 
-      v.includes('emma') || 
-      v.includes('nabanita') || 
-      v.includes('tanishaa') || 
-      v.includes('swara') || 
-      v.includes('rachel') || 
-      v.includes('domi') || 
-      v.includes('bella') || 
-      v.includes('elli') || 
-      v.includes('nova') || 
-      v.includes('shimmer')
-    );
-    const gender = isFemale ? 'Female' : 'Male';
-    const langLabel = studioLanguage === 'en' ? 'English' : (studioLanguage === 'bn' ? 'Bangla' : 'Hindi');
-    return [provider.toUpperCase(), langLabel, gender, `${speed}x Speed`];
-  };
+
 
   return (
     <div className="content-body" style={{ animation: 'fadeIn 0.4s ease-out', height: 'auto', overflowY: 'auto', padding: '1.5rem 1.5rem 120px 1.5rem' }}>
       
       {/* Drawer Overlay backdrop */}
+      {/* Drawer Overlay backdrop */}
       <div 
-        className={`drawer-overlay ${isSettingsOpen || isVoiceDrawerOpen ? 'open' : ''}`}
-        onClick={() => {
-          setIsSettingsOpen(false);
-          setIsVoiceDrawerOpen(false);
-        }}
+        className={`drawer-overlay ${isVoiceDrawerOpen ? 'open' : ''}`}
+        onClick={() => setIsVoiceDrawerOpen(false)}
       />
 
-      {/* Right Drawer (Sliders & API Credentials) */}
-      <div className={`side-drawer ${isSettingsOpen ? 'open' : ''}`}>
-        <div className="drawer-header">
-          <div className="drawer-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '0.2rem' }}>
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-            Voice Settings
-          </div>
-          <button className="drawer-close" onClick={() => setIsSettingsOpen(false)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        <div className="drawer-body">
-          {studioLanguage === 'en' ? (
-            <TTSConfig
-              provider={provider}
-              setProvider={setProvider}
-              voice={voice}
-              setVoice={setVoice}
-              speed={speed}
-              setSpeed={setSpeed}
-              pitch={pitch}
-              setPitch={setPitch}
-              stability={stability}
-              setStability={setStability}
-              similarity={similarity}
-              setSimilarity={setSimilarity}
-              geminiKey={geminiKey}
-              setGeminiKey={setGeminiKey}
-              openaiKey={openaiKey}
-              setOpenaiKey={setOpenaiKey}
-              elevenlabsKey={elevenlabsKey}
-              setElevenlabsKey={setElevenlabsKey}
-              charLimit={charLimit}
-              setCharLimit={setCharLimit}
-              showToast={showToast}
-              backendUrl={backendUrl}
-              hideVoiceGrid={true}
-            />
-          ) : (
-            <OtherLangTTSConfig
-              studioLanguage={studioLanguage}
-              provider={provider}
-              setProvider={setProvider}
-              voice={voice}
-              setVoice={setVoice}
-              speed={speed}
-              setSpeed={setSpeed}
-              pitch={pitch}
-              setPitch={setPitch}
-              stability={stability}
-              setStability={setStability}
-              similarity={similarity}
-              setSimilarity={setSimilarity}
-              openaiKey={openaiKey}
-              elevenlabsKey={elevenlabsKey}
-              showToast={showToast}
-              backendUrl={backendUrl}
-              hideVoiceGrid={true}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Bottom Drawer (Voice Artist Selector) */}
-      <div className={`bottom-drawer ${isVoiceDrawerOpen ? 'open' : ''}`}>
+      {/* Voice Selection Modal */}
+      <div className={`voice-modal ${isVoiceDrawerOpen ? 'open' : ''}`}>
         <div className="drawer-header">
           <div className="drawer-title">
             🗣 Select Voice Artist ({studioLanguage === 'en' ? 'English' : (studioLanguage === 'bn' ? 'Bangla' : 'Hindi')})
@@ -648,52 +559,16 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
               )}
             </button>
             
-            {/* Voice Name and Characteristics Pill Labels */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            {/* Voice Name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
               <span style={{ fontSize: '0.86rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                 {getActiveVoiceName()}
               </span>
-              <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                {getVoiceCharacteristics().map((characteristic, index) => (
-                  <span 
-                    key={index} 
-                    style={{ 
-                      fontSize: '0.6rem', 
-                      fontWeight: '700', 
-                      padding: '0.1rem 0.5rem', 
-                      background: 'var(--bg-base)', 
-                      border: '1px solid var(--border-color)', 
-                      color: 'var(--text-secondary)',
-                      borderRadius: '9999px',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    {characteristic}
-                  </span>
-                ))}
-              </div>
             </div>
           </div>
           
-          {/* Settings & Change buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <button 
-              className="btn btn-secondary" 
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.74rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-              onClick={() => setIsSettingsOpen(true)}
-              title="Configure Voice Settings (Speed, Pitch, API Keys)"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" />
-                <line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" />
-                <line x1="1" y1="14" x2="7" y2="14" />
-                <line x1="9" y1="8" x2="15" y2="8" />
-                <line x1="17" y1="16" x2="23" y2="16" />
-              </svg>
-              Adjust Settings
-            </button>
-            
+          {/* Change button */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <button 
               className="btn btn-primary" 
               style={{ padding: '0.35rem 0.75rem', fontSize: '0.74rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}

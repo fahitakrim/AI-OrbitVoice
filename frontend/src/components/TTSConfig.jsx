@@ -357,48 +357,14 @@ export default function TTSConfig({
   const currentMetadata = PROVIDER_METADATA[provider] || { badge: 'FREE', type: 'free' };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', height: '100%', overflow: 'hidden' }}>
       
-      {/* Card 1: Voice Engine selection */}
-      {!showOnlyVoiceGrid && (
-        <div className="glass-panel" style={{ padding: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-            <div className="form-label" style={{ margin: 0, fontWeight: '700' }}>Voice Engine</div>
-            <span 
-              className="badge-pill badge-pill-blue"
-              style={{ 
-                fontSize: '0.6rem', 
-                fontWeight: 'bold', 
-                padding: '0.12rem 0.45rem',
-                border: `1px solid ${currentMetadata.type === 'free' ? 'var(--accent-blue)' : 'var(--border-color)'}`,
-                color: currentMetadata.type === 'free' ? 'var(--accent-blue)' : 'var(--text-secondary)',
-                background: currentMetadata.type === 'free' ? 'var(--accent-blue-dim)' : 'rgba(255,255,255,0.02)'
-              }}
-            >
-              {currentMetadata.badge}
-            </span>
-          </div>
-          
-          <select 
-            className="form-select" 
-            value={provider} 
-            style={{ fontSize: '0.82rem', padding: '0.45rem 0.75rem', borderRadius: '8px' }}
-            onChange={(e) => setProvider(e.target.value)}
-          >
-            <option value="edge">Microsoft Edge (Free Neural)</option>
-            <option value="google">Google Translate (Free Robotic)</option>
-            <option value="openai">OpenAI TTS (API Key Required)</option>
-            <option value="elevenlabs">ElevenLabs (API Key Required)</option>
-          </select>
-        </div>
-      )}
-
-      {/* Card 2: Voice Roster selection */}
+      {/* Card: Voice Roster selection */}
       {!hideVoiceGrid && (
-        <div className="glass-panel" style={{ padding: '1rem' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div className="form-label" style={{ marginBottom: '0.5rem', fontWeight: '700' }}>Choose Narrator Voice</div>
           
-          <div className="voice-grid">
+          <div className="voice-grid" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
             {activeVoices.map((v) => {
               const isCurrentPreview = previewingVoiceId === v.id;
               const isSelected = voice === v.id;
@@ -411,10 +377,10 @@ export default function TTSConfig({
                   style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0.6rem', borderRadius: '8px' }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="voice-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.8rem' }}>
+                    <div className="voice-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.8rem', fontWeight: '700' }}>
                       {v.name}
                     </div>
-                    <div className="voice-meta" style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
+                    <div className="voice-meta" style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>
                       {v.id.includes('-') ? v.id.split('-').slice(1).join('-') : v.id.substring(0, 10)}
                     </div>
                   </div>
@@ -465,121 +431,6 @@ export default function TTSConfig({
               );
             })}
           </div>
-
-          <div 
-            style={{ 
-              padding: '0.5rem 0.65rem', 
-              borderRadius: '8px', 
-              background: 'var(--bg-base)', 
-              border: '1px solid var(--border-color)', 
-              fontSize: '0.72rem', 
-              color: 'var(--text-secondary)',
-              lineHeight: '1.4'
-            }}
-          >
-            <strong style={{ color: 'var(--accent-blue)' }}>Voice Info:</strong> {activeVoices.find(v => v.id === voice)?.description || 'No voice description.'}
-          </div>
-        </div>
-      )}
-
-      {/* Card 3: Speed & Pitch Sliders */}
-      {!showOnlyVoiceGrid && (provider === 'openai' || provider === 'edge' || provider === 'elevenlabs') && (
-        <div className="glass-panel" style={{ padding: '1rem' }}>
-          <div className="form-label" style={{ marginBottom: '0.6rem', fontWeight: '700' }}>Speed & Pitch Settings</div>
-
-          {(provider === 'openai' || provider === 'edge') && (
-            <div className="slider-container" style={{ marginBottom: '0.6rem' }}>
-              <div className="slider-header">
-                <span>Vocal Speed</span>
-                <span className="slider-val">{speed.toFixed(2)}x</span>
-              </div>
-              <input 
-                type="range" 
-                className="slider-input" 
-                min="0.25" 
-                max="2.0" 
-                step="0.05" 
-                value={speed} 
-                onChange={(e) => setSpeed(Number(e.target.value))}
-              />
-            </div>
-          )}
-
-          {provider === 'edge' && (
-            <div className="slider-container" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-              <div className="slider-header">
-                <span>Vocal Pitch</span>
-                <span className="slider-val">{pitch}</span>
-              </div>
-              <input 
-                type="range" 
-                className="slider-input" 
-                min="-20" 
-                max="20" 
-                step="1" 
-                value={parseInt(pitch.replace('%', '').replace('Hz', '')) || 0} 
-                onChange={(e) => {
-                  const num = Number(e.target.value);
-                  setPitch(num >= 0 ? `+${num}Hz` : `${num}Hz`);
-                }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--text-secondary)', marginTop: '0.3rem', fontWeight: '500' }}>
-                <span>DEEPER BASS</span>
-                <span>BRIGHTER SOPRANO</span>
-              </div>
-            </div>
-          )}
-
-          {provider === 'elevenlabs' && (
-            <>
-              <div className="slider-container" style={{ marginBottom: '0.6rem' }}>
-                <div className="slider-header">
-                  <span>Voice Stability</span>
-                  <span className="slider-val">{Math.round(stability * 100)}%</span>
-                </div>
-                <input 
-                  type="range" 
-                  className="slider-input" 
-                  min="0.0" 
-                  max="1.0" 
-                  step="0.05" 
-                  value={stability} 
-                  onChange={(e) => setStability(Number(e.target.value))}
-                />
-              </div>
-              
-              <div className="slider-container" style={{ marginBottom: 0 }}>
-                <div className="slider-header">
-                  <span>Clarity / Similarity</span>
-                  <span className="slider-val">{Math.round(similarity * 100)}%</span>
-                </div>
-                <input 
-                  type="range" 
-                  className="slider-input" 
-                  min="0.0" 
-                  max="1.0" 
-                  step="0.05" 
-                  value={similarity} 
-                  onChange={(e) => setSimilarity(Number(e.target.value))}
-                />
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Engine active message block */}
-      {!showOnlyVoiceGrid && provider === 'edge' && (
-        <div style={{ padding: '0.5rem 0.75rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--accent-blue-dim)', fontSize: '0.72rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: '600' }}>
-          <span style={{ color: 'var(--accent-green)' }}>✓</span>
-          <span>Free Engine Active</span>
-        </div>
-      )}
-      
-      {!showOnlyVoiceGrid && provider === 'google' && (
-        <div style={{ padding: '0.5rem 0.75rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--accent-blue-dim)', fontSize: '0.72rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: '600' }}>
-          <span style={{ color: 'var(--accent-green)' }}>✓</span>
-          <span>Free Engine Active</span>
         </div>
       )}
       

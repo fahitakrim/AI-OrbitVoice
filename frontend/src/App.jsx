@@ -260,22 +260,6 @@ export default function App() {
             refreshTrigger={refreshTrigger}
           />
         )}
-
-        {activeTab === 'settings' && (
-          <TTSConfig 
-            openaiKey={openaiKey}
-            setOpenaiKey={setOpenaiKey}
-            elevenlabsKey={elevenlabsKey}
-            setElevenlabsKey={setElevenlabsKey}
-            geminiKey={geminiKey}
-            setGeminiKey={setGeminiKey}
-            charLimit={charLimit}
-            setCharLimit={setCharLimit}
-            showToast={showToast}
-            isSettingsTab={true}
-            backendUrl={backendUrl}
-          />
-        )}
       </main>
     </div>
   );
