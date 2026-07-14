@@ -7,22 +7,19 @@ export default function Sidebar({
   theme, 
   setTheme,
   studioLanguage,
-  setStudioLanguage
+  setStudioLanguage,
+  isOpen = false,
+  setIsOpen
 }) {
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+    if (setIsOpen) {
+      setIsOpen(false);
+    }
+  };
+
   return (
-    <div className="sidebar" style={{ 
-      width: '240px', 
-      height: '100vh', 
-      background: 'var(--bg-surface)', 
-      borderRight: '1px solid var(--border-color)', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      justifyContent: 'space-between',
-      position: 'sticky',
-      top: 0,
-      flexShrink: 0,
-      zIndex: 100
-    }}>
+    <div className={`sidebar ${isOpen ? 'is-open' : ''}`}>
       
       {/* Upper Navigation and Logo Wrapper */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -54,6 +51,8 @@ export default function Sidebar({
           
           {/* Collapse sidebar visual toggle */}
           <button 
+            className="sidebar-close-btn"
+            onClick={() => setIsOpen && setIsOpen(false)}
             style={{ 
               background: 'transparent', 
               border: 'none', 
@@ -66,9 +65,8 @@ export default function Sidebar({
             title="Collapse Sidebar"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -78,7 +76,7 @@ export default function Sidebar({
           
           <button 
             className={`sidebar-nav-item ${activeTab === 'editor' ? 'active' : ''}`}
-            onClick={() => setActiveTab('editor')}
+            onClick={() => handleNavClick('editor')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -107,7 +105,7 @@ export default function Sidebar({
 
           <button 
             className={`sidebar-nav-item ${activeTab === 'history' ? 'active' : ''}`}
-            onClick={() => setActiveTab('history')}
+            onClick={() => handleNavClick('history')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -134,7 +132,7 @@ export default function Sidebar({
 
           <button 
             className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleNavClick('settings')}
             style={{
               display: 'flex',
               alignItems: 'center',

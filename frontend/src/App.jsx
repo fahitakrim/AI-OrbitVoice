@@ -48,6 +48,8 @@ export default function App() {
   // Sync Library Trigger
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000'
     : 'https://ai-orbitvoice.onrender.com';
@@ -164,6 +166,22 @@ export default function App() {
         </div>
       </div>
 
+      {/* Mobile Sidebar backdrop */}
+      {isSidebarOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.4)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 990,
+            display: 'block'
+          }}
+          className="mobile-sidebar-backdrop"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Left Sidebar Navigation with Theme & Language props */}
       <Sidebar 
         activeTab={activeTab} 
@@ -173,9 +191,30 @@ export default function App() {
         setTheme={setTheme}
         studioLanguage={studioLanguage}
         setStudioLanguage={setStudioLanguage}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
       />
 
       <main className="main-content">
+        {/* Mobile Header Bar */}
+        <div className="mobile-header">
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="mobile-menu-btn"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          
+          <div className="mobile-header-logo">
+            <div className="logo-glow" />
+            <span>VOICEORBIT</span>
+          </div>
+          <div style={{ width: '20px' }} /> {/* spacing placeholder */}
+        </div>
 
         {activeTab === 'editor' && (
           <StoryEditor 

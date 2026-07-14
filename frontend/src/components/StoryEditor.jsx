@@ -615,23 +615,8 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
           </div>
         </div>
 
-        {/* Active Voice Bar (Pill Shape) */}
-        <div 
-          className="glass-panel" 
-          style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            padding: '0.6rem 1.5rem',
-            background: 'var(--bg-surface)', 
-            border: '1px solid var(--border-color)',
-            borderRadius: '9999px',
-            marginTop: '0.5rem',
-            marginBottom: '0.5rem',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}
-        >
+        {/* Active Voice Bar */}
+        <div className="active-voice-bar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             {/* Play/Preview active voice button */}
             <button 
