@@ -48,7 +48,9 @@ export default function App() {
   // Sync Library Trigger
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const backendUrl = import.meta.env.VITE_API_URL || 'https://ai-orbitvoice.onrender.com';
+  const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : 'https://ai-orbitvoice.onrender.com';
 
   // Load saved credentials on mount
   useEffect(() => {
@@ -162,101 +164,18 @@ export default function App() {
         </div>
       </div>
 
-      {/* Top Header Navigation with Theme props */}
+      {/* Left Sidebar Navigation with Theme & Language props */}
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         backendUrl={backendUrl}
         theme={theme}
         setTheme={setTheme}
+        studioLanguage={studioLanguage}
+        setStudioLanguage={setStudioLanguage}
       />
 
       <main className="main-content">
-        <header className="content-header" style={{ padding: '0.85rem 2.5rem 0.65rem 2.5rem' }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <h1 className="content-title" style={{ fontSize: '1.25rem', display: 'flex', flexDirection: 'row', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {activeTab === 'editor' && 'AI Voiceover Studio'}
-                {activeTab === 'history' && 'Audio Library'}
-                {activeTab === 'settings' && 'Settings & Keyring'}
-                
-                <span className="content-subtitle" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'inline', marginLeft: '0.25rem', fontWeight: '500' }}>
-                  {activeTab === 'editor' && 'Create voiceovers for Reels, Shorts, stories, lessons, and presentations.'}
-                  {activeTab === 'history' && 'Archived recordings and story audio files.'}
-                  {activeTab === 'settings' && 'Manage local API integration keys safely.'}
-                </span>
-              </h1>
-              
-              {activeTab === 'editor' && (
-                <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <span className="badge-pill badge-pill-blue" style={{ fontSize: '0.64rem', padding: '0.15rem 0.5rem' }}>Free Engine</span>
-                  <span className="badge-pill badge-pill-violet" style={{ fontSize: '0.64rem', padding: '0.15rem 0.5rem' }}>Long Script Mode</span>
-                  <span className="badge-pill badge-pill-green" style={{ fontSize: '0.64rem', padding: '0.15rem 0.5rem' }}>MP3 Export</span>
-                </div>
-              )}
-            </div>
-
-            {/* Right side: Segmented Language switch & Waveform decoration inside the header */}
-            {activeTab === 'editor' && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
-                <div 
-                  style={{ 
-                    display: 'flex', 
-                    background: 'var(--border-color)', 
-                    padding: '0.15rem', 
-                    borderRadius: '9999px',
-                    alignItems: 'center'
-                  }}
-                >
-                  <button
-                    className={`sidebar-btn ${studioLanguage === 'en' ? 'active' : ''}`}
-                    style={{ padding: '0.3rem 0.95rem', fontSize: '0.75rem', borderRadius: '9999px' }}
-                    onClick={() => setStudioLanguage('en')}
-                  >
-                    English
-                  </button>
-                  <button
-                    className={`sidebar-btn ${studioLanguage === 'bn' ? 'active' : ''}`}
-                    style={{ padding: '0.3rem 0.95rem', fontSize: '0.75rem', borderRadius: '9999px' }}
-                    onClick={() => setStudioLanguage('bn')}
-                  >
-                    Bangla
-                  </button>
-                  <button
-                    className={`sidebar-btn ${studioLanguage === 'hi' ? 'active' : ''}`}
-                    style={{ padding: '0.3rem 0.95rem', fontSize: '0.75rem', borderRadius: '9999px' }}
-                    onClick={() => setStudioLanguage('hi')}
-                  >
-                    Hindi
-                  </button>
-                </div>
-
-                <div className="header-waveform" style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '18px' }}>
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div 
-                      key={i} 
-                      className="header-wave-bar" 
-                      style={{ 
-                        width: '2px', 
-                        height: '4px', 
-                        background: 'linear-gradient(to top, var(--accent-blue), var(--accent-violet))',
-                        borderRadius: '9999px',
-                        animation: `dance 1s ease-in-out infinite alternate`,
-                        animationDelay: `${i * 0.08}s`
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {activeTab === 'history' && (
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '600', background: 'var(--bg-surface)', padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                Disk Cache: <strong style={{ color: 'var(--text-primary)' }}>Active</strong>
-              </div>
-            )}
-          </div>
-        </header>
 
         {activeTab === 'editor' && (
           <StoryEditor 
@@ -269,7 +188,9 @@ export default function App() {
             showToast={showToast}
             backendUrl={backendUrl}
             charLimit={charLimit}
+            setCharLimit={setCharLimit}
             geminiKey={geminiKey}
+            setGeminiKey={setGeminiKey}
             provider={activeProvider}
             setProvider={setActiveProvider}
             voice={activeVoice}
@@ -283,7 +204,9 @@ export default function App() {
             similarity={activeSimilarity}
             setSimilarity={setActiveSimilarity}
             openaiKey={openaiKey}
+            setOpenaiKey={setOpenaiKey}
             elevenlabsKey={elevenlabsKey}
+            setElevenlabsKey={setElevenlabsKey}
             onGenerationComplete={() => setRefreshTrigger(prev => prev + 1)}
             refreshTrigger={refreshTrigger}
             onRestoreStory={handleRestoreStory}
@@ -311,6 +234,7 @@ export default function App() {
             setCharLimit={setCharLimit}
             showToast={showToast}
             isSettingsTab={true}
+            backendUrl={backendUrl}
           />
         )}
       </main>

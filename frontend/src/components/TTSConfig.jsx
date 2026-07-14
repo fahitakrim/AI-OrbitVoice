@@ -219,115 +219,133 @@ export default function TTSConfig({
 
   if (isSettingsTab) {
     return (
-      <div className="settings-layout">
-        <div className="glass-panel" style={{ width: '100%' }}>
-          <div className="panel-title" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.25rem' }}>
-            API Integration Hub
-          </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-            API keys are kept strictly in your local browser sandbox and are only sent directly to official speech endpoints. They never transit third-party servers.
-          </p>
-            
-          <div className="form-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-              <label className="form-label">Gemini API Key (Required for AI Studio Canvas Writer)</label>
-              <button 
-                className="player-btn-sec" 
-                style={{ fontSize: '0.72rem', textDecoration: 'underline', border: 'none', background: 'transparent' }} 
-                onClick={() => setShowGemini(!showGemini)}
-              >
-                {showGemini ? 'Hide Key' : 'Reveal Key'}
-              </button>
-            </div>
-            <input 
-              type={showGemini ? 'text' : 'password'} 
-              className="form-input" 
-              placeholder="AIzaSy..." 
-              value={geminiKey || ''}
-              onChange={(e) => setGeminiKey(e.target.value)}
-            />
-            <div style={{ marginTop: '0.35rem', fontSize: '0.74rem' }}>
-              <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>
-                Register for a Free Gemini API Key at Google AI Studio
-              </a>
-            </div>
-            <div className="api-status">
-              <span className="status-indicator" style={{ background: geminiKey ? 'var(--accent-green)' : 'var(--text-muted)', boxShadow: geminiKey ? '0 0 5px var(--accent-green)' : 'none' }} />
-              <span style={{ color: geminiKey ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                {geminiKey ? 'Connected (Gemini Engine Ready)' : 'Disconnected (Required for writing scripts with AI)'}
-              </span>
-            </div>
-          </div>
-
-          <div className="form-group" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-              <label className="form-label">OpenAI API Key (Optional - Paid Speech Engine)</label>
-              <button 
-                className="player-btn-sec" 
-                style={{ fontSize: '0.72rem', textDecoration: 'underline', border: 'none', background: 'transparent' }} 
-                onClick={() => setShowOpenai(!showOpenai)}
-              >
-                {showOpenai ? 'Hide Key' : 'Reveal Key'}
-              </button>
-            </div>
-            <input 
-              type={showOpenai ? 'text' : 'password'} 
-              className="form-input" 
-              placeholder="sk-proj-..." 
-              value={openaiKey}
-              onChange={(e) => setOpenaiKey(e.target.value)}
-            />
-            <div className="api-status">
-              <span className="status-indicator" style={{ background: openaiKey ? 'var(--accent-green)' : 'var(--text-muted)', boxShadow: openaiKey ? '0 0 5px var(--accent-green)' : 'none' }} />
-              <span style={{ color: openaiKey ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                {openaiKey ? 'Connected (OpenAI Engine Available)' : 'Disconnected'}
-              </span>
-            </div>
-          </div>
-
-          <div className="form-group" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-              <label className="form-label">ElevenLabs API Key (Optional - Paid Speech Engine)</label>
-              <button 
-                className="player-btn-sec" 
-                style={{ fontSize: '0.72rem', textDecoration: 'underline', border: 'none', background: 'transparent' }} 
-                onClick={() => setShowElevenlabs(!showElevenlabs)}
-              >
-                {showElevenlabs ? 'Hide Key' : 'Reveal Key'}
-              </button>
-            </div>
-            <input 
-              type={showElevenlabs ? 'text' : 'password'} 
-              className="form-input" 
-              placeholder="Enter ElevenLabs API Key" 
-              value={elevenlabsKey}
-              onChange={(e) => setElevenlabsKey(e.target.value)}
-            />
-            <div className="api-status">
-              <span className="status-indicator" style={{ background: elevenlabsKey ? 'var(--accent-green)' : 'var(--text-muted)', boxShadow: elevenlabsKey ? '0 0 5px var(--accent-green)' : 'none' }} />
-              <span style={{ color: elevenlabsKey ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                {elevenlabsKey ? 'Connected (ElevenLabs Engine Available)' : 'Disconnected'}
-              </span>
-            </div>
-          </div>
-
-          <div className="form-group" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '1.25rem' }}>
-            <label className="form-label">Single-Run Generation Character Limit</label>
-            <input 
-              type="number" 
-              className="form-input" 
-              placeholder="e.g. 30000" 
-              value={charLimit || ''}
-              onChange={(e) => setCharLimit(Number(e.target.value))}
-            />
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.4rem', lineHeight: '1.4' }}>
-              Protects local storage and sets boundaries to prevent API execution timeouts.
+      <div className="content-body" style={{ 
+        animation: 'fadeIn 0.4s ease-out', 
+        height: 'auto', 
+        overflowY: 'auto', 
+        padding: '1.5rem 1.5rem 120px 1.5rem' 
+      }}>
+        <div style={{ maxWidth: '840px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          
+          {/* Centered Page Header */}
+          <div style={{ textAlign: 'center', padding: '1rem 0 1.75rem 0' }}>
+            <h1 style={{ fontSize: '2.1rem', fontWeight: '900', letterSpacing: '-0.04em', color: 'var(--text-primary)', marginBottom: '0.55rem' }}>
+              Settings & Credentials
+            </h1>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '500', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
+              Manage your local API endpoints and keys. Kept safely in your browser storage.
             </p>
           </div>
 
-          <button className="btn btn-primary" style={{ width: '100%', marginTop: '1.25rem', borderRadius: '9999px' }} onClick={saveCredentials}>
-            Save Credentials
-          </button>
+          <div className="glass-panel" style={{ width: '100%', padding: '2rem', background: 'var(--bg-surface)' }}>
+            <div className="panel-title" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.25rem' }}>
+              API Integration Hub
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+              API keys are kept strictly in your local browser sandbox and are only sent directly to official speech endpoints. They never transit third-party servers.
+            </p>
+              
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <label className="form-label">Gemini API Key (Required for AI Studio Canvas Writer)</label>
+                <button 
+                  className="player-btn-sec" 
+                  style={{ fontSize: '0.72rem', textDecoration: 'underline', border: 'none', background: 'transparent' }} 
+                  onClick={() => setShowGemini(!showGemini)}
+                >
+                  {showGemini ? 'Hide Key' : 'Reveal Key'}
+                </button>
+              </div>
+              <input 
+                type={showGemini ? 'text' : 'password'} 
+                className="form-input" 
+                placeholder="AIzaSy..." 
+                value={geminiKey || ''}
+                onChange={(e) => setGeminiKey(e.target.value)}
+              />
+              <div style={{ marginTop: '0.35rem', fontSize: '0.74rem' }}>
+                <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>
+                  Register for a Free Gemini API Key at Google AI Studio
+                </a>
+              </div>
+              <div className="api-status">
+                <span className="status-indicator" style={{ background: geminiKey ? 'var(--accent-green)' : 'var(--text-muted)', boxShadow: geminiKey ? '0 0 5px var(--accent-green)' : 'none' }} />
+                <span style={{ color: geminiKey ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  {geminiKey ? 'Connected (Gemini Engine Ready)' : 'Disconnected (Required for writing scripts with AI)'}
+                </span>
+              </div>
+            </div>
+
+            <div className="form-group" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <label className="form-label">OpenAI API Key (Optional - Paid Speech Engine)</label>
+                <button 
+                  className="player-btn-sec" 
+                  style={{ fontSize: '0.72rem', textDecoration: 'underline', border: 'none', background: 'transparent' }} 
+                  onClick={() => setShowOpenai(!showOpenai)}
+                >
+                  {showOpenai ? 'Hide Key' : 'Reveal Key'}
+                </button>
+              </div>
+              <input 
+                type={showOpenai ? 'text' : 'password'} 
+                className="form-input" 
+                placeholder="sk-proj-..." 
+                value={openaiKey}
+                onChange={(e) => setOpenaiKey(e.target.value)}
+              />
+              <div className="api-status">
+                <span className="status-indicator" style={{ background: openaiKey ? 'var(--accent-green)' : 'var(--text-muted)', boxShadow: openaiKey ? '0 0 5px var(--accent-green)' : 'none' }} />
+                <span style={{ color: openaiKey ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  {openaiKey ? 'Connected (OpenAI Engine Available)' : 'Disconnected'}
+                </span>
+              </div>
+            </div>
+
+            <div className="form-group" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <label className="form-label">ElevenLabs API Key (Optional - Paid Speech Engine)</label>
+                <button 
+                  className="player-btn-sec" 
+                  style={{ fontSize: '0.72rem', textDecoration: 'underline', border: 'none', background: 'transparent' }} 
+                  onClick={() => setShowElevenlabs(!showElevenlabs)}
+                >
+                  {showElevenlabs ? 'Hide Key' : 'Reveal Key'}
+                </button>
+              </div>
+              <input 
+                type={showElevenlabs ? 'text' : 'password'} 
+                className="form-input" 
+                placeholder="Enter ElevenLabs API Key" 
+                value={elevenlabsKey}
+                onChange={(e) => setElevenlabsKey(e.target.value)}
+              />
+              <div className="api-status">
+                <span className="status-indicator" style={{ background: elevenlabsKey ? 'var(--accent-green)' : 'var(--text-muted)', boxShadow: elevenlabsKey ? '0 0 5px var(--accent-green)' : 'none' }} />
+                <span style={{ color: elevenlabsKey ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  {elevenlabsKey ? 'Connected (ElevenLabs Engine Available)' : 'Disconnected'}
+                </span>
+              </div>
+            </div>
+
+            <div className="form-group" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '1.25rem' }}>
+              <label className="form-label">Single-Run Generation Character Limit</label>
+              <input 
+                type="number" 
+                className="form-input" 
+                placeholder="e.g. 30000" 
+                value={charLimit || ''}
+                onChange={(e) => setCharLimit(Number(e.target.value))}
+              />
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.4rem', lineHeight: '1.4' }}>
+                Protects local storage and sets boundaries to prevent API execution timeouts.
+              </p>
+            </div>
+
+            <button className="btn btn-primary" style={{ width: '100%', marginTop: '1.25rem', borderRadius: '9999px' }} onClick={saveCredentials}>
+              Save Credentials
+            </button>
+          </div>
 
           {/* Branding & Support Footer */}
           <BrandingFooter showToast={showToast} />

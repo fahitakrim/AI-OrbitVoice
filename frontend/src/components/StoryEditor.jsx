@@ -363,6 +363,26 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
     return 'ENGLISH STUDIO';
   };
 
+  const getVoiceCharacteristics = () => {
+    const v = voice.toLowerCase();
+    const isFemale = (
+      v.includes('ava') || 
+      v.includes('emma') || 
+      v.includes('nabanita') || 
+      v.includes('tanishaa') || 
+      v.includes('swara') || 
+      v.includes('rachel') || 
+      v.includes('domi') || 
+      v.includes('bella') || 
+      v.includes('elli') || 
+      v.includes('nova') || 
+      v.includes('shimmer')
+    );
+    const gender = isFemale ? 'Female' : 'Male';
+    const langLabel = studioLanguage === 'en' ? 'English' : (studioLanguage === 'bn' ? 'Bangla' : 'Hindi');
+    return [provider.toUpperCase(), langLabel, gender, `${speed}x Speed`];
+  };
+
   return (
     <div className="content-body" style={{ animation: 'fadeIn 0.4s ease-out', height: 'auto', overflowY: 'auto', padding: '1.5rem 1.5rem 120px 1.5rem' }}>
       
@@ -595,31 +615,33 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
           </div>
         </div>
 
-        {/* Active Voice Bar */}
+        {/* Active Voice Bar (Pill Shape) */}
         <div 
           className="glass-panel" 
           style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center', 
-            padding: '0.85rem 1.25rem',
+            padding: '0.6rem 1.5rem',
             background: 'var(--bg-surface)', 
             border: '1px solid var(--border-color)',
-            borderRadius: '12px',
-            marginTop: '0.4rem',
-            marginBottom: '0.4rem'
+            borderRadius: '9999px',
+            marginTop: '0.5rem',
+            marginBottom: '0.5rem',
+            flexWrap: 'wrap',
+            gap: '1rem'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             {/* Play/Preview active voice button */}
             <button 
               className={`player-btn-circle ${activePreviewing ? 'active' : ''}`}
               style={{ 
-                width: '34px', 
-                height: '34px', 
+                width: '32px', 
+                height: '32px', 
                 flexShrink: 0,
                 borderRadius: '50%',
-                background: 'var(--accent-blue)',
+                background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-violet))',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
@@ -635,53 +657,61 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
                   <rect x="14" y="4" width="4" height="16" />
                 </svg>
               ) : (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style={{ marginLeft: '2px' }}>
-                  <polygon points="5 3 19 12 5 21" />
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 19 12 6 20" />
                 </svg>
               )}
             </button>
             
-            {/* Voice metadata label details */}
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '0.88rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+            {/* Voice Name and Characteristics Pill Labels */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.86rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                 {getActiveVoiceName()}
-              </div>
-              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.15rem' }}>
-                <span className="badge-pill badge-pill-blue" style={{ fontSize: '0.62rem', padding: '0.1rem 0.4rem' }}>
-                  {provider.toUpperCase()}
-                </span>
-                <span className="badge-pill badge-pill-violet" style={{ fontSize: '0.62rem', padding: '0.1rem 0.4rem' }}>
-                  {studioLanguage === 'en' ? 'ENGLISH' : (studioLanguage === 'bn' ? 'BANGLA' : 'HINDI')}
-                </span>
+              </span>
+              <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                {getVoiceCharacteristics().map((characteristic, index) => (
+                  <span 
+                    key={index} 
+                    style={{ 
+                      fontSize: '0.6rem', 
+                      fontWeight: '700', 
+                      padding: '0.1rem 0.5rem', 
+                      background: 'var(--bg-base)', 
+                      border: '1px solid var(--border-color)', 
+                      color: 'var(--text-secondary)',
+                      borderRadius: '9999px',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    {characteristic}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
           
           {/* Settings & Change buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <button 
               className="btn btn-secondary" 
-              style={{ padding: '0.4rem 0.85rem', fontSize: '0.74rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.74rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               onClick={() => setIsSettingsOpen(true)}
               title="Configure Voice Settings (Speed, Pitch, API Keys)"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="4" y1="21" x2="4" y2="14" />
-                <line x1="4" y1="10" x2="4" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12" y2="3" />
-                <line x1="20" y1="21" x2="20" y2="16" />
-                <line x1="20" y1="12" x2="20" y2="3" />
+                <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" />
+                <line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" />
                 <line x1="1" y1="14" x2="7" y2="14" />
                 <line x1="9" y1="8" x2="15" y2="8" />
                 <line x1="17" y1="16" x2="23" y2="16" />
               </svg>
-              Adjust
+              Adjust Settings
             </button>
             
             <button 
               className="btn btn-primary" 
-              style={{ padding: '0.4rem 0.85rem', fontSize: '0.74rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.74rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               onClick={() => setIsVoiceDrawerOpen(true)}
               title="Change Voice Artist"
             >
@@ -710,6 +740,145 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
           backendUrl={backendUrl}
           onGenerationComplete={onGenerationComplete}
         />
+
+        {/* Examples Grid (NoteGPT-style actions cards) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginTop: '1.25rem', width: '100%' }}>
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate('reels')} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-blue)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] How Earthquakes Form
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(37, 99, 235, 0.1)', color: 'var(--accent-blue)', fontWeight: 'bold' }}>
+                Course
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-blue)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate('story')} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-violet)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] The Boy Who Collected Clouds
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-violet)', fontWeight: 'bold' }}>
+                Audiobook
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-violet)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate('education')} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-green)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] Why We Always Forget Dreams
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)', fontWeight: 'bold' }}>
+                Dubbing
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-green)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate(studioLanguage === 'bn' ? 'bn' : (studioLanguage === 'hi' ? 'hi' : 'reels'))} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-yellow)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] Newton and the Apple
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.1)', color: 'var(--accent-yellow)', fontWeight: 'bold' }}>
+                Storytelling
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-yellow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-yellow)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Bottom Brand footer inside centered shell */}
         <div style={{ marginTop: '1.5rem', opacity: 0.8 }}>
