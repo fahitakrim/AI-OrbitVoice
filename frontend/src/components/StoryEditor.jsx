@@ -436,10 +436,7 @@ export default function StoryEditor({
                 }}
                 style={{ width: '100%', marginTop: '0.25rem' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.58rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                <span>DEEPER BASS</span>
-                <span>BRIGHTER SOPRANO</span>
-              </div>
+
             </div>
           </div>
 
@@ -468,16 +465,19 @@ export default function StoryEditor({
           <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left' }}>
             Choose Narrator Voice
           </div>
-          <div style={{ 
-            display: 'flex', 
-            overflowX: 'auto', 
-            gap: '0.75rem', 
-            width: '100%', 
-            paddingBottom: '0.75rem',
-            paddingTop: '0.25rem',
-            scrollbarWidth: 'thin',
-            msOverflowStyle: 'none'
-          }}>
+          <div 
+            className="no-scrollbar"
+            style={{ 
+              display: 'flex', 
+              overflowX: 'auto', 
+              gap: '0.75rem', 
+              width: '100%', 
+              paddingBottom: '0.75rem',
+              paddingTop: '0.25rem',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
             {(ALL_STUDIO_VOICES[studioLanguage] || []).map((v) => {
               const isSelected = voice === v.id;
               const isCurrentPreview = previewingVoiceId === v.id;

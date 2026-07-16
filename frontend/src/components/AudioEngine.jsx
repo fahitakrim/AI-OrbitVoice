@@ -335,7 +335,7 @@ export default function AudioEngine({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       
       {/* Generate Voiceover Primary Trigger */}
-      <div className="glass-panel" style={{ padding: '1rem' }}>
+      <div>
         <button 
           className="btn btn-primary" 
           style={{ width: '100%', padding: '0.7rem 1.15rem', fontSize: '0.88rem', fontWeight: '700', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
@@ -349,10 +349,6 @@ export default function AudioEngine({
           </svg>
           {isSynthesizing ? 'Compiling script...' : 'Generate Voiceover'}
         </button>
-        
-        <div style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.45rem', fontWeight: '500' }}>
-          Generates your script into audio using the selected voice settings.
-        </div>
 
         {/* Compiler queue display */}
         {compilerStep > 0 && (

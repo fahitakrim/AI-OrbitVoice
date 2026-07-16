@@ -1376,3 +1376,12 @@ body::after {
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
 }
+
+/* Hide scrollbar helper */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
