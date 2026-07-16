@@ -396,12 +396,88 @@ export default function StoryEditor({
           </div>
         </div>
 
-        {/* Voice Selection Cards Grid (replaces Examples Grid) */}
-        <div style={{ marginTop: '0.75rem', width: '100%' }}>
+        {/* Speed, Pitch & Generate Button section (Immediately below text box) */}
+        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-surface)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-label" style={{ fontWeight: '800', fontSize: '0.85rem', color: 'var(--text-primary)' }}>Speed & Pitch Settings</div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+            <div className="slider-container" style={{ marginBottom: 0 }}>
+              <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                <span>Vocal Speed</span>
+                <span className="slider-val" style={{ fontWeight: 'bold' }}>{speed.toFixed(2)}x</span>
+              </div>
+              <input 
+                type="range" 
+                className="slider-input" 
+                min="0.25" 
+                max="2.0" 
+                step="0.05" 
+                value={speed} 
+                onChange={(e) => setSpeed(Number(e.target.value))}
+                style={{ width: '100%', marginTop: '0.25rem' }}
+              />
+            </div>
+
+            <div className="slider-container" style={{ marginBottom: 0 }}>
+              <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                <span>Vocal Pitch</span>
+                <span className="slider-val" style={{ fontWeight: 'bold' }}>{pitch}</span>
+              </div>
+              <input 
+                type="range" 
+                className="slider-input" 
+                min="-20" 
+                max="20" 
+                step="1" 
+                value={parseInt(pitch.replace('%', '').replace('Hz', '')) || 0} 
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  setPitch(num >= 0 ? `+${num}Hz` : `${num}Hz`);
+                }}
+                style={{ width: '100%', marginTop: '0.25rem' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.58rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                <span>DEEPER BASS</span>
+                <span>BRIGHTER SOPRANO</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '0.25rem' }}>
+            <AudioEngine
+              storyTitle={storyTitle}
+              storyText={storyText}
+              provider={provider}
+              voice={voice}
+              speed={speed}
+              pitch={pitch}
+              stability={stability}
+              similarity={similarity}
+              openaiKey={openaiKey}
+              elevenlabsKey={elevenlabsKey}
+              charLimit={charLimit}
+              showToast={showToast}
+              backendUrl={backendUrl}
+              onGenerationComplete={onGenerationComplete}
+            />
+          </div>
+        </div>
+
+        {/* Voice Selection Cards Grid (Scrollable sidewise) */}
+        <div style={{ marginTop: '0.5rem', width: '100%' }}>
           <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left' }}>
             Choose Narrator Voice
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', width: '100%' }}>
+          <div style={{ 
+            display: 'flex', 
+            overflowX: 'auto', 
+            gap: '0.75rem', 
+            width: '100%', 
+            paddingBottom: '0.75rem',
+            paddingTop: '0.25rem',
+            scrollbarWidth: 'thin',
+            msOverflowStyle: 'none'
+          }}>
             {(ALL_STUDIO_VOICES[studioLanguage] || []).map((v) => {
               const isSelected = voice === v.id;
               const isCurrentPreview = previewingVoiceId === v.id;
@@ -423,6 +499,8 @@ export default function StoryEditor({
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                     height: '110px',
+                    width: '185px',
+                    flexShrink: 0,
                     boxShadow: isSelected ? '0 0 0 1px var(--accent-blue)' : 'none',
                     position: 'relative',
                     overflow: 'hidden'
@@ -491,72 +569,143 @@ export default function StoryEditor({
           </div>
         </div>
 
-        {/* Speed & Pitch Settings Card */}
-        <div className="glass-panel" style={{ padding: '1rem', background: 'var(--bg-surface)', marginTop: '0.5rem', borderRadius: '12px' }}>
-          <div className="form-label" style={{ marginBottom: '0.75rem', fontWeight: '800', fontSize: '0.85rem', color: 'var(--text-primary)' }}>Speed & Pitch Settings</div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
-            <div className="slider-container" style={{ marginBottom: 0 }}>
-              <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                <span>Vocal Speed</span>
-                <span className="slider-val" style={{ fontWeight: 'bold' }}>{speed.toFixed(2)}x</span>
-              </div>
-              <input 
-                type="range" 
-                className="slider-input" 
-                min="0.25" 
-                max="2.0" 
-                step="0.05" 
-                value={speed} 
-                onChange={(e) => setSpeed(Number(e.target.value))}
-                style={{ width: '100%', marginTop: '0.25rem' }}
-              />
+        {/* Examples Grid (NoteGPT-style actions cards) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginTop: '0.75rem', width: '100%' }}>
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate('reels')} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-blue)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] How Earthquakes Form
             </div>
-
-            <div className="slider-container" style={{ marginBottom: 0 }}>
-              <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                <span>Vocal Pitch</span>
-                <span className="slider-val" style={{ fontWeight: 'bold' }}>{pitch}</span>
-              </div>
-              <input 
-                type="range" 
-                className="slider-input" 
-                min="-20" 
-                max="20" 
-                step="1" 
-                value={parseInt(pitch.replace('%', '').replace('Hz', '')) || 0} 
-                onChange={(e) => {
-                  const num = Number(e.target.value);
-                  setPitch(num >= 0 ? `+${num}Hz` : `${num}Hz`);
-                }}
-                style={{ width: '100%', marginTop: '0.25rem' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.58rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                <span>DEEPER BASS</span>
-                <span>BRIGHTER SOPRANO</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(37, 99, 235, 0.1)', color: 'var(--accent-blue)', fontWeight: 'bold' }}>
+                Course
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-blue)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Generate Voiceover Compilation CTA Button */}
-        <div style={{ marginTop: '0.5rem' }}>
-          <AudioEngine
-            storyTitle={storyTitle}
-            storyText={storyText}
-            provider={provider}
-            voice={voice}
-            speed={speed}
-            pitch={pitch}
-            stability={stability}
-            similarity={similarity}
-            openaiKey={openaiKey}
-            elevenlabsKey={elevenlabsKey}
-            charLimit={charLimit}
-            showToast={showToast}
-            backendUrl={backendUrl}
-            onGenerationComplete={onGenerationComplete}
-          />
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate('story')} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-violet)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] The Boy Who Collected Clouds
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-violet)', fontWeight: 'bold' }}>
+                Audiobook
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-violet)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate('education')} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-green)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] Why We Always Forget Dreams
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)', fontWeight: 'bold' }}>
+                Dubbing
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-green)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className="glass-panel" 
+            onClick={() => handleLoadTemplate(studioLanguage === 'bn' ? 'bn' : (studioLanguage === 'hi' ? 'hi' : 'reels'))} 
+            style={{ 
+              padding: '1rem', 
+              cursor: 'pointer', 
+              background: 'var(--bg-surface)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '12px',
+              transition: 'all 0.2s ease', 
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '105px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-yellow)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
+          >
+            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+              [Example] Newton and the Apple
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.1)', color: 'var(--accent-yellow)', fontWeight: 'bold' }}>
+                Storytelling
+              </span>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-yellow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-yellow)" style={{ marginLeft: '1px' }}>
+                  <polygon points="6 4 18 12 6 20" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Bottom Brand footer inside centered shell */}
