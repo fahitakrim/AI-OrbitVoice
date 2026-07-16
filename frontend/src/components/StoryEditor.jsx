@@ -396,9 +396,7 @@ export default function StoryEditor({
           </div>
         </div>
 
-        {/* Speed, Pitch & Generate Button section (Immediately below text box) */}
-        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-surface)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div className="form-label" style={{ fontWeight: '800', fontSize: '0.85rem', color: 'var(--text-primary)' }}>Speed & Pitch Settings</div>
+        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-surface)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
             <div className="slider-container" style={{ marginBottom: 0 }}>
