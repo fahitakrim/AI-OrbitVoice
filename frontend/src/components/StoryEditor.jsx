@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import TTSConfig from './TTSConfig';
-import OtherLangTTSConfig from './OtherLangTTSConfig';
 import AudioEngine from './AudioEngine';
-import HistoryList from './HistoryList';
 
 const getWordCount = (text) => {
   if (!text) return 0;
@@ -12,6 +9,30 @@ const getWordCount = (text) => {
 const getCharCount = (text) => {
   if (!text) return 0;
   return text.length;
+};
+
+const ALL_STUDIO_VOICES = {
+  en: [
+    { id: 'en-US-AvaMultilingualNeural', name: 'Ava', badge: 'US Neural', description: 'Premium free voice. Highly realistic, natural, and expressive female narrator (Recommended)' },
+    { id: 'en-US-EmmaMultilingualNeural', name: 'Emma', badge: 'US Neural', description: 'Premium free voice. Crisp, clear, and intimate female narrator' },
+    { id: 'en-US-AndrewMultilingualNeural', name: 'Andrew', badge: 'US Neural', description: 'Premium free voice. Deep, engaging, and smooth presenter male' },
+    { id: 'en-US-BrianMultilingualNeural', name: 'Brian', badge: 'US Neural', description: 'Premium free voice. Crisp, natural professional male narration' },
+    { id: 'en-GB-RyanMultilingualNeural', name: 'Ryan', badge: 'UK Neural', description: 'Premium free voice. Warm, expressive British male narration' },
+    { id: 'en-GB-SoniaMultilingualNeural', name: 'Sonia', badge: 'UK Neural', description: 'Premium free voice. Clear, expressive British female narrator' },
+    { id: 'en-IN-NeerjaExpressiveNeural', name: 'Neerja', badge: 'IN Neural', description: 'Premium free voice. Rich, conversational, and emotionally expressive Indian accent.' },
+    { id: 'en-US-AnaNeural', name: 'Ana', badge: 'Child Female', description: 'Premium free child voice. Gentle, friendly kid tone.' },
+    { id: 'en-GB-ThomasNeural', name: 'Thomas', badge: 'Deep Narration', description: 'Premium free British voice. Deep, resonant, and formal male narrator.' }
+  ],
+  bn: [
+    { id: 'bn-BD-NabanitaNeural', name: 'Nabanita', badge: 'BD Neural', description: 'Premium free Bangla voice. Warm and natural female narrator.' },
+    { id: 'bn-BD-PradeepNeural', name: 'Pradeep', badge: 'BD Neural', description: 'Premium free Bangla voice. Smooth and professional male narrator.' },
+    { id: 'bn-IN-TanishaaNeural', name: 'Tanishaa', badge: 'IN Neural', description: 'Premium free Bengali voice. Clear and expressive female narrator.' },
+    { id: 'bn-IN-BashkarNeural', name: 'Bashkar', badge: 'IN Neural', description: 'Premium free Bengali voice. Natural male narrator.' }
+  ],
+  hi: [
+    { id: 'hi-IN-SwaraNeural', name: 'Swara', badge: 'IN Neural', description: 'Premium free Hindi voice. Engaging and warm female narrator.' },
+    { id: 'hi-IN-MadhurNeural', name: 'Madhur', badge: 'IN Neural', description: 'Premium free Hindi voice. Deep and clear male narrator.' }
+  ]
 };
 
 // Reusable Branding Footer Component
@@ -70,41 +91,49 @@ export default function StoryEditor({
   refreshTrigger,
   onRestoreStory
 }) {
-  const [prompt, setPrompt] = useState('');
-  const [generatingStory, setGeneratingStory] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isVoiceDrawerOpen, setIsVoiceDrawerOpen] = useState(false);
-  
-  const [activePreviewing, setActivePreviewing] = useState(false);
-  const activePreviewAudioRef = React.useRef(null);
+  const [previewingVoiceId, setPreviewingVoiceId] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const previewAudioRef = React.useRef(null);
 
   React.useEffect(() => {
     return () => {
-      if (activePreviewAudioRef.current) {
-        activePreviewAudioRef.current.pause();
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause();
       }
     };
   }, []);
 
-  const handlePreviewActiveVoice = async () => {
-    if (activePreviewing) {
-      if (activePreviewAudioRef.current) {
-        activePreviewAudioRef.current.pause();
+  const handlePreviewVoice = async (e, voiceId) => {
+    e.stopPropagation();
+    
+    if (previewingVoiceId === voiceId) {
+      if (previewAudioRef.current) {
+        if (!previewAudioRef.current.paused) {
+          previewAudioRef.current.pause();
+          setPreviewingVoiceId(null);
+        } else {
+          previewAudioRef.current.play().catch(console.error);
+        }
       }
-      setActivePreviewing(false);
       return;
     }
-    
-    setActivePreviewing(true);
+
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current = null;
+    }
+
+    setPreviewingVoiceId(voiceId);
+    setPreviewLoading(true);
+
     try {
-      const activeKey = provider === 'openai' ? openaiKey : (provider === 'elevenlabs' ? elevenlabsKey : '');
       const response = await fetch(`${backendUrl}/api/preview-voice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          provider,
-          voice,
-          apiKey: activeKey,
+          provider: 'edge',
+          voice: voiceId,
+          apiKey: '',
           settings: { speed, pitch }
         })
       });
@@ -118,117 +147,40 @@ export default function StoryEditor({
       const audioUrl = URL.createObjectURL(blob);
       
       const audio = new Audio(audioUrl);
-      activePreviewAudioRef.current = audio;
+      previewAudioRef.current = audio;
       
       audio.oncanplaythrough = () => {
-        audio.play().then(() => {
-          setActivePreviewing(true);
-        }).catch(err => {
-          console.error(err);
-          setActivePreviewing(false);
+        setPreviewLoading(false);
+        audio.play().catch(err => {
+          console.error('Audio playback failed:', err);
         });
       };
-      
-      audio.onended = () => setActivePreviewing(false);
-      audio.onerror = () => {
+
+      audio.onended = () => {
+        setPreviewingVoiceId(null);
+      };
+
+      audio.onerror = (err) => {
+        console.error('Audio element error:', err);
         showToast('Playback error.', 'error');
-        setActivePreviewing(false);
+        setPreviewLoading(false);
+        setPreviewingVoiceId(null);
       };
     } catch (err) {
       console.error(err);
       showToast(err.message, 'error');
-      setActivePreviewing(false);
+      setPreviewLoading(false);
+      setPreviewingVoiceId(null);
     }
   };
 
   const getActiveVoiceName = () => {
-    const edge = [
-      { id: 'en-US-AvaNeural', name: 'Ava (US English)' },
-      { id: 'en-US-AndrewNeural', name: 'Andrew (US English)' },
-      { id: 'en-US-EmmaNeural', name: 'Emma (US English)' },
-      { id: 'en-US-BrianNeural', name: 'Brian (US English)' },
-      { id: 'bn-BD-NabanitaNeural', name: 'Nabanita (Bangla)' },
-      { id: 'bn-BD-PradeepNeural', name: 'Pradeep (Bangla)' },
-      { id: 'bn-IN-TanishaaNeural', name: 'Tanishaa (Bangla - India)' },
-      { id: 'bn-IN-BashkarNeural', name: 'Bashkar (Bangla - India)' },
-      { id: 'hi-IN-SwaraNeural', name: 'Swara (Hindi)' },
-      { id: 'hi-IN-MadhurNeural', name: 'Madhur (Hindi)' }
+    const all = [
+      ...ALL_STUDIO_VOICES.en,
+      ...ALL_STUDIO_VOICES.bn,
+      ...ALL_STUDIO_VOICES.hi
     ].find(v => v.id === voice);
-    if (edge) return edge.name;
-
-    const openai = [
-      { id: 'alloy', name: 'Alloy (OpenAI)' },
-      { id: 'echo', name: 'Echo (OpenAI)' },
-      { id: 'fable', name: 'Fable (OpenAI)' },
-      { id: 'onyx', name: 'Onyx (OpenAI)' },
-      { id: 'nova', name: 'Nova (OpenAI)' },
-      { id: 'shimmer', name: 'Shimmer (OpenAI)' }
-    ].find(v => v.id === voice);
-    if (openai) return openai.name;
-
-    const eleven = [
-      { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel (ElevenLabs)' },
-      { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi (ElevenLabs)' },
-      { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella (ElevenLabs)' },
-      { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni (ElevenLabs)' },
-      { id: 'MF3mGyEYCl7XYWbV9VbO', name: 'Elli (ElevenLabs)' },
-      { id: 'TxGEqn7nUaNZTR5JgIec', name: 'Josh (ElevenLabs)' },
-      { id: 'VR6A1YjmeZasKIG2lkFc', name: 'Arnold (ElevenLabs)' },
-      { id: 'pNInz6obpgfrhhF21yNZ', name: 'Adam (ElevenLabs)' },
-      { id: 'yoZ06aOLSspZKLgp3vPF', name: 'Sam (ElevenLabs)' }
-    ].find(v => v.id === voice);
-    if (eleven) return eleven.name;
-
-    const google = [
-      { id: 'bn', name: 'Google Bangla (Unisex)' },
-      { id: 'hi', name: 'Google Hindi (Unisex)' }
-    ].find(v => v.id === voice);
-    if (google) return google.name;
-
-    return voice;
-  };
-
-  const handleGenerateStory = async () => {
-    if (!prompt || prompt.trim() === '') {
-      showToast('Please enter a topic or prompt for your story.', 'error');
-      return;
-    }
-    if (!geminiKey) {
-      showToast('Gemini API Key is missing. Please set it in Settings to write stories.', 'error');
-      return;
-    }
-
-    setGeneratingStory(true);
-    try {
-      let finalPrompt = prompt;
-      if (studioLanguage !== 'en') {
-        const langName = studioLanguage === 'bn' ? 'Bengali (Bangla)' : 'Hindi';
-        finalPrompt = `You are a master storyteller. Write an engaging, vivid narrative story in ${langName} based on the user's prompt: "${prompt}".
-The story should be detailed (around 500-800 words) and optimized for reading aloud as an audio voiceover.
-CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter headings, English translations, or wrap in markdown styling. Start writing the story content directly in the chosen language.`;
-      }
-
-      const response = await fetch(`${backendUrl}/api/generate-story`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: finalPrompt,
-          customApiKey: geminiKey
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to generate story');
-
-      setStoryText(data.story);
-      showToast('New story generated and loaded to canvas!', 'success');
-      setPrompt('');
-    } catch (err) {
-      console.error(err);
-      showToast(err.message, 'error');
-    } finally {
-      setGeneratingStory(false);
-    }
+    return all ? all.name : voice;
   };
 
   const handleAutoFormatPunctuation = () => {
@@ -368,80 +320,6 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
   return (
     <div className="content-body" style={{ animation: 'fadeIn 0.4s ease-out', height: 'auto', overflowY: 'auto', padding: '1.5rem 1.5rem 120px 1.5rem' }}>
       
-      {/* Drawer Overlay backdrop */}
-      {/* Drawer Overlay backdrop */}
-      <div 
-        className={`drawer-overlay ${isVoiceDrawerOpen ? 'open' : ''}`}
-        onClick={() => setIsVoiceDrawerOpen(false)}
-      />
-
-      {/* Voice Selection Modal */}
-      <div className={`voice-modal ${isVoiceDrawerOpen ? 'open' : ''}`}>
-        <div className="drawer-header">
-          <div className="drawer-title">
-            🗣 Select Voice Artist ({studioLanguage === 'en' ? 'English' : (studioLanguage === 'bn' ? 'Bangla' : 'Hindi')})
-          </div>
-          <button className="drawer-close" onClick={() => setIsVoiceDrawerOpen(false)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        <div className="drawer-body">
-          {studioLanguage === 'en' ? (
-            <TTSConfig
-              provider={provider}
-              setProvider={setProvider}
-              voice={voice}
-              setVoice={setVoice}
-              speed={speed}
-              setSpeed={setSpeed}
-              pitch={pitch}
-              setPitch={setPitch}
-              stability={stability}
-              setStability={setStability}
-              similarity={similarity}
-              setSimilarity={setSimilarity}
-              geminiKey={geminiKey}
-              setGeminiKey={setGeminiKey}
-              openaiKey={openaiKey}
-              setOpenaiKey={setOpenaiKey}
-              elevenlabsKey={elevenlabsKey}
-              setElevenlabsKey={setElevenlabsKey}
-              charLimit={charLimit}
-              setCharLimit={setCharLimit}
-              showToast={showToast}
-              backendUrl={backendUrl}
-              showOnlyVoiceGrid={true}
-              onSelectVoice={() => setIsVoiceDrawerOpen(false)}
-            />
-          ) : (
-            <OtherLangTTSConfig
-              studioLanguage={studioLanguage}
-              provider={provider}
-              setProvider={setProvider}
-              voice={voice}
-              setVoice={setVoice}
-              speed={speed}
-              setSpeed={setSpeed}
-              pitch={pitch}
-              setPitch={setPitch}
-              stability={stability}
-              setStability={setStability}
-              similarity={similarity}
-              setSimilarity={setSimilarity}
-              openaiKey={openaiKey}
-              elevenlabsKey={elevenlabsKey}
-              showToast={showToast}
-              backendUrl={backendUrl}
-              showOnlyVoiceGrid={true}
-              onSelectVoice={() => setIsVoiceDrawerOpen(false)}
-            />
-          )}
-        </div>
-      </div>
-
       {/* Centered NoteGPT Studio Shell */}
       <div style={{ maxWidth: '840px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         
@@ -510,15 +388,7 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
             />
             
             {/* Sub-card actions (inside the text editor card bottom) */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem' }}>
-              <button 
-                className="btn btn-secondary" 
-                style={{ borderRadius: '6px', fontSize: '0.74rem', padding: '0.35rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }} 
-                onClick={() => setIsVoiceDrawerOpen(true)}
-              >
-                🗣 {getActiveVoiceName()} ▾
-              </button>
-              
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
                 {storyText.length.toLocaleString()} / 30,000 chars
               </div>
@@ -526,218 +396,167 @@ CRITICAL: Write only the narrative story text. Do NOT write any titles, chapter 
           </div>
         </div>
 
-        {/* Active Voice Bar */}
-        <div className="active-voice-bar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            {/* Play/Preview active voice button */}
-            <button 
-              className={`player-btn-circle ${activePreviewing ? 'active' : ''}`}
-              style={{ 
-                width: '32px', 
-                height: '32px', 
-                flexShrink: 0,
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-violet))',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-              onClick={handlePreviewActiveVoice}
-              title="Preview Selected Voice Artist"
-            >
-              {activePreviewing ? (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff">
-                  <rect x="6" y="4" width="4" height="16" />
-                  <rect x="14" y="4" width="4" height="16" />
-                </svg>
-              ) : (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style={{ marginLeft: '1px' }}>
-                  <polygon points="6 4 19 12 6 20" />
-                </svg>
-              )}
-            </button>
-            
-            {/* Voice Name */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <span style={{ fontSize: '0.86rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-                {getActiveVoiceName()}
-              </span>
-            </div>
+        {/* Voice Selection Cards Grid (replaces Examples Grid) */}
+        <div style={{ marginTop: '0.75rem', width: '100%' }}>
+          <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left' }}>
+            Choose Narrator Voice
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', width: '100%' }}>
+            {(ALL_STUDIO_VOICES[studioLanguage] || []).map((v) => {
+              const isSelected = voice === v.id;
+              const isCurrentPreview = previewingVoiceId === v.id;
+              
+              return (
+                <div 
+                  key={v.id}
+                  className={`glass-panel ${isSelected ? 'selected' : ''}`}
+                  onClick={() => setVoice(v.id)}
+                  style={{ 
+                    padding: '1rem', 
+                    cursor: 'pointer', 
+                    background: isSelected ? 'var(--accent-blue-dim)' : 'var(--bg-surface)', 
+                    border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)', 
+                    borderRadius: '12px',
+                    transition: 'all 0.2s ease', 
+                    textAlign: 'left',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    height: '110px',
+                    boxShadow: isSelected ? '0 0 0 1px var(--accent-blue)' : 'none',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseOver={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'var(--accent-blue)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
+                  onMouseOut={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; } }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.84rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {v.name}
+                    </div>
+                    <div style={{ fontSize: '0.64rem', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '0.2rem' }}>
+                      {v.description.split('.')[0] || v.description}
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', zIndex: 2 }}>
+                    <span style={{ 
+                      fontSize: '0.62rem', 
+                      padding: '0.15rem 0.45rem', 
+                      borderRadius: '4px', 
+                      background: isSelected ? 'rgba(37, 99, 235, 0.2)' : 'rgba(255, 255, 255, 0.03)', 
+                      color: isSelected ? 'var(--accent-blue)' : 'var(--text-secondary)', 
+                      fontWeight: 'bold',
+                      border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)'
+                    }}>
+                      {v.badge}
+                    </span>
+                    
+                    {/* Preview Audio Circle Button */}
+                    <button
+                      className={`player-btn-sec preview-btn ${isCurrentPreview ? 'active' : ''}`}
+                      onClick={(e) => handlePreviewVoice(e, v.id)}
+                      style={{ 
+                        width: '24px', 
+                        height: '24px', 
+                        borderRadius: '50%', 
+                        background: isCurrentPreview ? 'var(--accent-blue)' : 'var(--border-color)', 
+                        color: isCurrentPreview ? '#ffffff' : 'var(--text-secondary)',
+                        border: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                      title="Preview Voice Artist"
+                    >
+                      {isCurrentPreview && previewLoading ? (
+                        <div className="spinner" style={{ width: '10px', height: '10px', borderWidth: '1.2px', borderTopColor: '#fff', animationDuration: '0.6s' }} />
+                      ) : isCurrentPreview ? (
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
+                          <rect x="6" y="4" width="4" height="16" />
+                          <rect x="14" y="4" width="4" height="16" />
+                        </svg>
+                      ) : (
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="5 3 19 12 5 21" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Speed & Pitch Settings Card */}
+        <div className="glass-panel" style={{ padding: '1rem', background: 'var(--bg-surface)', marginTop: '0.5rem', borderRadius: '12px' }}>
+          <div className="form-label" style={{ marginBottom: '0.75rem', fontWeight: '800', fontSize: '0.85rem', color: 'var(--text-primary)' }}>Speed & Pitch Settings</div>
           
-          {/* Change button */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <button 
-              className="btn btn-primary" 
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.74rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-              onClick={() => setIsVoiceDrawerOpen(true)}
-              title="Change Voice Artist"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M17 2.1l4 4-4 4M3 12h18M21 21.9l-4-4 4-4" />
-              </svg>
-              Change Voice
-            </button>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+            <div className="slider-container" style={{ marginBottom: 0 }}>
+              <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                <span>Vocal Speed</span>
+                <span className="slider-val" style={{ fontWeight: 'bold' }}>{speed.toFixed(2)}x</span>
+              </div>
+              <input 
+                type="range" 
+                className="slider-input" 
+                min="0.25" 
+                max="2.0" 
+                step="0.05" 
+                value={speed} 
+                onChange={(e) => setSpeed(Number(e.target.value))}
+                style={{ width: '100%', marginTop: '0.25rem' }}
+              />
+            </div>
+
+            <div className="slider-container" style={{ marginBottom: 0 }}>
+              <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                <span>Vocal Pitch</span>
+                <span className="slider-val" style={{ fontWeight: 'bold' }}>{pitch}</span>
+              </div>
+              <input 
+                type="range" 
+                className="slider-input" 
+                min="-20" 
+                max="20" 
+                step="1" 
+                value={parseInt(pitch.replace('%', '').replace('Hz', '')) || 0} 
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  setPitch(num >= 0 ? `+${num}Hz` : `${num}Hz`);
+                }}
+                style={{ width: '100%', marginTop: '0.25rem' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.58rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                <span>DEEPER BASS</span>
+                <span>BRIGHTER SOPRANO</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Generate Voiceover Compilation CTA Button */}
-        <AudioEngine
-          storyTitle={storyTitle}
-          storyText={storyText}
-          provider={provider}
-          voice={voice}
-          speed={speed}
-          pitch={pitch}
-          stability={stability}
-          similarity={similarity}
-          openaiKey={openaiKey}
-          elevenlabsKey={elevenlabsKey}
-          charLimit={charLimit}
-          showToast={showToast}
-          backendUrl={backendUrl}
-          onGenerationComplete={onGenerationComplete}
-        />
-
-        {/* Examples Grid (NoteGPT-style actions cards) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginTop: '1.25rem', width: '100%' }}>
-          <div 
-            className="glass-panel" 
-            onClick={() => handleLoadTemplate('reels')} 
-            style={{ 
-              padding: '1rem', 
-              cursor: 'pointer', 
-              background: 'var(--bg-surface)', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: '12px',
-              transition: 'all 0.2s ease', 
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              height: '105px'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-blue)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
-          >
-            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
-              [Example] How Earthquakes Form
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(37, 99, 235, 0.1)', color: 'var(--accent-blue)', fontWeight: 'bold' }}>
-                Course
-              </span>
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-blue)" style={{ marginLeft: '1px' }}>
-                  <polygon points="6 4 18 12 6 20" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div 
-            className="glass-panel" 
-            onClick={() => handleLoadTemplate('story')} 
-            style={{ 
-              padding: '1rem', 
-              cursor: 'pointer', 
-              background: 'var(--bg-surface)', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: '12px',
-              transition: 'all 0.2s ease', 
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              height: '105px'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-violet)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
-          >
-            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
-              [Example] The Boy Who Collected Clouds
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-violet)', fontWeight: 'bold' }}>
-                Audiobook
-              </span>
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-violet)" style={{ marginLeft: '1px' }}>
-                  <polygon points="6 4 18 12 6 20" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div 
-            className="glass-panel" 
-            onClick={() => handleLoadTemplate('education')} 
-            style={{ 
-              padding: '1rem', 
-              cursor: 'pointer', 
-              background: 'var(--bg-surface)', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: '12px',
-              transition: 'all 0.2s ease', 
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              height: '105px'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-green)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
-          >
-            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
-              [Example] Why We Always Forget Dreams
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)', fontWeight: 'bold' }}>
-                Dubbing
-              </span>
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-green)" style={{ marginLeft: '1px' }}>
-                  <polygon points="6 4 18 12 6 20" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div 
-            className="glass-panel" 
-            onClick={() => handleLoadTemplate(studioLanguage === 'bn' ? 'bn' : (studioLanguage === 'hi' ? 'hi' : 'reels'))} 
-            style={{ 
-              padding: '1rem', 
-              cursor: 'pointer', 
-              background: 'var(--bg-surface)', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: '12px',
-              transition: 'all 0.2s ease', 
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              height: '105px'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-yellow)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; }}
-          >
-            <div style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4' }}>
-              [Example] Newton and the Apple
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.1)', color: 'var(--accent-yellow)', fontWeight: 'bold' }}>
-                Storytelling
-              </span>
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid var(--accent-yellow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent-yellow)" style={{ marginLeft: '1px' }}>
-                  <polygon points="6 4 18 12 6 20" />
-                </svg>
-              </div>
-            </div>
-          </div>
+        <div style={{ marginTop: '0.5rem' }}>
+          <AudioEngine
+            storyTitle={storyTitle}
+            storyText={storyText}
+            provider={provider}
+            voice={voice}
+            speed={speed}
+            pitch={pitch}
+            stability={stability}
+            similarity={similarity}
+            openaiKey={openaiKey}
+            elevenlabsKey={elevenlabsKey}
+            charLimit={charLimit}
+            showToast={showToast}
+            backendUrl={backendUrl}
+            onGenerationComplete={onGenerationComplete}
+          />
         </div>
 
         {/* Bottom Brand footer inside centered shell */}
