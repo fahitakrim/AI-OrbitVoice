@@ -310,9 +310,9 @@ export default function Sidebar({
           }}>
             FT
           </div>
-          <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+          <div style={{ flex: 1, minWidth: 0, textAlign: 'left', display: 'flex', alignItems: 'center' }}>
             <div style={{ 
-              fontSize: '0.82rem', 
+              fontSize: '0.84rem', 
               fontWeight: '800', 
               color: 'var(--text-primary)', 
               whiteSpace: 'nowrap', 
@@ -320,9 +320,6 @@ export default function Sidebar({
               textOverflow: 'ellipsis' 
             }}>
               Fahim Takrim
-            </div>
-            <div style={{ fontSize: '0.64rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-              Fullstack Developer
             </div>
           </div>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" style={{ flexShrink: 0 }}>
