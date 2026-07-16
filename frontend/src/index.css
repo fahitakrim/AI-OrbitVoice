@@ -1351,7 +1351,7 @@ body::after {
   transform: translate(-50%, -45%) scale(0.95);
   width: 480px;
   max-width: 95vw;
-  height: 420px;
+  height: 520px;
   max-height: 80vh;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);

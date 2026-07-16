@@ -274,6 +274,52 @@ export default function OtherLangTTSConfig({
           </div>
         </div>
       )}
+
+      {/* Speed & Pitch Settings */}
+      <div style={{ marginTop: '0.75rem', padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'rgba(255,255,255,0.01)' }}>
+        <div className="form-label" style={{ marginBottom: '0.6rem', fontWeight: '700', fontSize: '0.8rem' }}>Speed & Pitch Settings</div>
+        
+        <div className="slider-container" style={{ marginBottom: '0.6rem' }}>
+          <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+            <span>Vocal Speed</span>
+            <span className="slider-val" style={{ fontWeight: 'bold' }}>{speed.toFixed(2)}x</span>
+          </div>
+          <input 
+            type="range" 
+            className="slider-input" 
+            min="0.25" 
+            max="2.0" 
+            step="0.05" 
+            value={speed} 
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            style={{ width: '100%', marginTop: '0.2rem' }}
+          />
+        </div>
+
+        <div className="slider-container" style={{ marginBottom: 0 }}>
+          <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+            <span>Vocal Pitch</span>
+            <span className="slider-val" style={{ fontWeight: 'bold' }}>{pitch}</span>
+          </div>
+          <input 
+            type="range" 
+            className="slider-input" 
+            min="-20" 
+            max="20" 
+            step="1" 
+            value={parseInt(pitch.replace('%', '').replace('Hz', '')) || 0} 
+            onChange={(e) => {
+              const num = Number(e.target.value);
+              setPitch(num >= 0 ? `+${num}Hz` : `${num}Hz`);
+            }}
+            style={{ width: '100%', marginTop: '0.2rem' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.58rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+            <span>DEEPER BASS</span>
+            <span>BRIGHTER SOPRANO</span>
+          </div>
+        </div>
+      </div>
       
     </div>
   );
