@@ -655,10 +655,10 @@ body::after {
 
 /* Voice cards grid */
 .voice-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.4rem;
-  max-height: 155px; /* Compact height, shows 3-4 narrator items cleanly */
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 180px; /* Compact height, shows 3-4 narrator items cleanly */
   overflow-y: auto;
   padding-right: 0.2rem;
   margin-bottom: 0.75rem;
@@ -668,12 +668,18 @@ body::after {
   background: #f8fafc;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 0.4rem 0.65rem;
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
   text-align: left;
   transition: var(--transition-fast);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 54px;
+  flex-shrink: 0;
 }
 
 [data-theme="dark"] .voice-card {

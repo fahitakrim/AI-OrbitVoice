@@ -197,7 +197,6 @@ export default function OtherLangTTSConfig({
                   className={`voice-card ${isSelected ? 'selected' : ''}`}
                   onClick={() => { setVoice(v.id); if (onSelectVoice) onSelectVoice(); }}
                   title={v.description}
-                  style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0.6rem', borderRadius: '8px' }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.1rem' }}>
