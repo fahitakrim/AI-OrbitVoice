@@ -94,6 +94,7 @@ export default function StoryEditor({
   const [previewingVoiceId, setPreviewingVoiceId] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const previewAudioRef = React.useRef(null);
+  const voiceScrollRef = React.useRef(null);
 
   React.useEffect(() => {
     return () => {
@@ -102,6 +103,24 @@ export default function StoryEditor({
       }
     };
   }, []);
+
+  React.useEffect(() => {
+    const el = voiceScrollRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      const toScroll = e.deltaY || e.deltaX;
+      if (toScroll !== 0) {
+        e.preventDefault();
+        el.scrollLeft += toScroll;
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
+    };
+  }, [studioLanguage]);
 
   const handlePreviewVoice = async (e, voiceId) => {
     e.stopPropagation();
@@ -464,6 +483,7 @@ export default function StoryEditor({
             Choose Narrator Voice
           </div>
           <div 
+            ref={voiceScrollRef}
             className="no-scrollbar"
             style={{ 
               display: 'flex', 
