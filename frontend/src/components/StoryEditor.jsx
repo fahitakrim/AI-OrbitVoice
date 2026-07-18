@@ -318,7 +318,7 @@ export default function StoryEditor({
 
 
   return (
-    <div className="content-body" style={{ animation: 'fadeIn 0.4s ease-out', height: 'auto', overflowY: 'auto', padding: '1.5rem 1.5rem 120px 1.5rem' }}>
+    <div className="content-body" style={{ animation: 'fadeIn 0.4s ease-out', padding: '1.5rem 1.5rem 120px 1.5rem' }}>
       
       {/* Centered NoteGPT Studio Shell */}
       <div style={{ maxWidth: '840px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -336,7 +336,7 @@ export default function StoryEditor({
         {/* Text Input Panel */}
         <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', background: 'var(--bg-surface)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="editor-title-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <span className="badge-pill badge-pill-blue" style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>
                 {getLanguageLabel()}
               </span>
@@ -351,7 +351,7 @@ export default function StoryEditor({
             </div>
             
             {/* Formatting Tools */}
-            <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
+            <div className="editor-toolbar" style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
               <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleCleanText} title="Cleans script formatting">
                 🧹 Clean Text
               </button>
@@ -473,7 +473,8 @@ export default function StoryEditor({
               paddingBottom: '0.75rem',
               paddingTop: '0.25rem',
               scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch'
             }}
           >
             {(ALL_STUDIO_VOICES[studioLanguage] || []).map((v) => {

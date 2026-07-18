@@ -1137,10 +1137,11 @@ body::after {
 
 /* Responsive Overrides */
 @media (max-width: 1024px) {
-  /* Maintain fixed screen size bounds on mobile to prevent scaling overflows */
+  /* Allow natural scrolling on mobile viewports */
   html, body, .app-container {
-    overflow: hidden !important;
-    height: 100vh !important;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
     width: 100vw !important;
   }
 
@@ -1185,12 +1186,15 @@ body::after {
   }
 
   .main-content {
-    height: calc(100vh - 56px) !important;
-    overflow: hidden;
+    height: auto !important;
+    min-height: calc(100vh - 56px) !important;
+    overflow-y: visible !important;
   }
   
   .content-body {
-    padding: 0.75rem 1rem 120px 1rem !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    padding: 0.75rem 1rem 160px 1rem !important;
   }
   
   .studio-grid {
@@ -1384,4 +1388,29 @@ body::after {
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* Responsive Script Header Styles */
+@media (max-width: 640px) {
+  .editor-title-container {
+    width: 100% !important;
+  }
+  .editor-title-container input {
+    flex: 1 !important;
+    width: auto !important;
+  }
+  
+  .editor-toolbar {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    width: 100% !important;
+    gap: 0.35rem !important;
+  }
+  .editor-toolbar button {
+    font-size: 0.64rem !important;
+    padding: 0.45rem 0.2rem !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    border-radius: 6px !important;
+  }
 }

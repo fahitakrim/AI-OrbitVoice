@@ -92,8 +92,6 @@ export default function HistoryList({
     return (
       <div className="content-body" style={{ 
         animation: 'fadeIn 0.4s ease-out', 
-        height: 'auto', 
-        overflowY: 'auto', 
         padding: '1.5rem 1.5rem 120px 1.5rem' 
       }}>
         <div style={{ maxWidth: '840px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

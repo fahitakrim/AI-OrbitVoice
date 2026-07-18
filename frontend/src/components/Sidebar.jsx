@@ -18,6 +18,13 @@ export default function Sidebar({
     }
   };
 
+  const handleLanguageClick = (lang) => {
+    setStudioLanguage(lang);
+    if (setIsOpen) {
+      setIsOpen(false);
+    }
+  };
+
   return (
     <div className={`sidebar ${isOpen ? 'is-open' : ''}`}>
       
@@ -153,7 +160,7 @@ export default function Sidebar({
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               <button 
-                onClick={() => setStudioLanguage('en')}
+                onClick={() => handleLanguageClick('en')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -175,7 +182,7 @@ export default function Sidebar({
               </button>
 
               <button 
-                onClick={() => setStudioLanguage('bn')}
+                onClick={() => handleLanguageClick('bn')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -197,7 +204,7 @@ export default function Sidebar({
               </button>
 
               <button 
-                onClick={() => setStudioLanguage('hi')}
+                onClick={() => handleLanguageClick('hi')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
