@@ -30,12 +30,12 @@ if (!fs.existsSync(HISTORY_DIR)) {
 // Serve static files from history directory
 app.use('/history', express.static(HISTORY_DIR));
 
-// Background Interval: Clean up folders older than 5 minutes every 60 seconds
+// Background Interval: Clean up folders older than 10 minutes every 60 seconds
 setInterval(() => {
   try {
     if (!fs.existsSync(HISTORY_DIR)) return;
     const now = Date.now();
-    const maxAgeMs = 5 * 60 * 1000; // 5 minutes
+    const maxAgeMs = 10 * 60 * 1000; // 10 minutes
 
     const items = fs.readdirSync(HISTORY_DIR);
     for (const item of items) {

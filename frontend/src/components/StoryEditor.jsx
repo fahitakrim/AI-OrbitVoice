@@ -479,8 +479,9 @@ export default function StoryEditor({
 
         {/* Voice Selection Cards Grid (Scrollable sidewise) */}
         <div style={{ marginTop: '0.5rem', width: '100%' }}>
-          <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left' }}>
-            Choose Narrator Voice
+          <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Choose Narrator Voice</span>
+            <span style={{ fontSize: '0.68rem', color: 'var(--accent-blue)', fontWeight: '600', opacity: 0.85 }}>Swipe ↔</span>
           </div>
           <div 
             ref={voiceScrollRef}
