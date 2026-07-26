@@ -320,12 +320,12 @@ export default function StoryEditor({
 
   const getPlaceholderText = () => {
     if (studioLanguage === 'bn') {
-      return '✍️ আপনার গল্প বা ভয়েস ওভারের কথাগুলো এখানে টাইপ বা পেস্ট করুন...';
+      return 'আপনার গল্প বা ভয়েস ওভারের কথাগুলো এখানে টাইপ বা পেস্ট করুন...';
     }
     if (studioLanguage === 'hi') {
-      return '✍️ अपनी कहानी या वॉइसओवर टेक्स्ट यहाँ लिखें या पेस्ट करें...';
+      return 'अपनी कहानी या वॉइसओवर टेक्स्ट यहाँ लिखें या पेस्ट करें...';
     }
-    return '✍️ Type or paste your script here... (e.g. story, reel script, documentary narration, or product voiceover)';
+    return 'Type or paste your script here (e.g. story, video script, audiobooks, or announcement)...';
   };
 
   const getLanguageLabel = () => {
@@ -354,10 +354,9 @@ export default function StoryEditor({
             WebkitTextFillColor: 'transparent',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem'
+            justifyContent: 'center'
           }}>
-            <span>🎙️ Text to Speech</span>
+            Text to Speech
           </h1>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', fontWeight: '500', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
             Generate studio-grade neural voiceovers in seconds for video, audiobooks, and social media.
@@ -368,24 +367,24 @@ export default function StoryEditor({
         <div>
           {/* Script Section Header Label */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem', padding: '0 0.25rem' }}>
-            <div style={{ fontSize: '0.88rem', fontWeight: '800', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>✍️ Enter Your Script</span>
+            <div style={{ fontSize: '0.88rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+              Enter Your Script
             </div>
             {storyText ? (
               <button 
                 onClick={() => setStoryText('')}
-                style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.74rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.74rem', fontWeight: '700', cursor: 'pointer' }}
                 title="Clear text box"
               >
-                🗑️ Clear Text
+                Clear Text
               </button>
             ) : (
               <button 
                 onClick={() => handleLoadTemplate('reels')}
-                style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '0.74rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '0.74rem', fontWeight: '700', cursor: 'pointer' }}
                 title="Load sample demo script"
               >
-                ✨ Load Sample Script
+                Load Sample Script
               </button>
             )}
           </div>
@@ -402,20 +401,20 @@ export default function StoryEditor({
                 style={{ width: '220px', padding: '0.35rem 0.75rem', fontSize: '0.85rem', fontWeight: '700', borderRadius: '6px' }}
                 value={storyTitle}
                 onChange={(e) => setStoryTitle(e.target.value)}
-                placeholder="Name your file (e.g. My Recording)"
+                placeholder="Name your file (default: My Audio)"
               />
             </div>
             
             {/* Formatting Tools */}
             <div className="editor-toolbar" style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
               <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleCleanText} title="Cleans script formatting">
-                🧹 Clean Text
+                Clean Text
               </button>
               <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleAutoFormatPunctuation} title="Adds punctuation clauses for breath pauses">
-                ⏱ Add Pauses
+                Add Pauses
               </button>
               <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleSplitPreview} title="Splits narrative text block into multi-row compiler segments">
-                ✂ Split into Chunks
+                Split into Chunks
               </button>
             </div>
           </div>
@@ -454,8 +453,8 @@ export default function StoryEditor({
             </div>
             
             {!storyText && (
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <span>💡 Tip: Click inside the box above to write your script, or tap <strong>✨ Load Sample Script</strong> to test instantly!</span>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '0.4rem' }}>
+                Tip: Click inside the box above to write your script, or tap <strong>Load Sample Script</strong> to test instantly.
               </div>
             )}
           </div>
@@ -548,9 +547,8 @@ export default function StoryEditor({
 
         {/* Voice Selection Cards Grid (Scrollable sidewise) */}
         <div style={{ marginTop: '0.5rem', width: '100%' }}>
-          <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Choose Narrator Voice</span>
-            <span style={{ fontSize: '0.68rem', color: 'var(--accent-blue)', fontWeight: '600', opacity: 0.85 }}>Swipe ↔</span>
+          <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left' }}>
+            Choose Narrator Voice
           </div>
           <div 
             ref={voiceScrollRef}

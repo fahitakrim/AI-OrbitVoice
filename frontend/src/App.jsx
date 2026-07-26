@@ -17,7 +17,7 @@ export default function App() {
   }, [theme]);
 
   // English State
-  const [storyTitle, setStoryTitle] = useState('My Voiceover');
+  const [storyTitle, setStoryTitle] = useState('My Audio');
   const [storyText, setStoryText] = useState('');
   const [provider, setProvider] = useState('edge');
   const [voice, setVoice] = useState('en-US-JennyNeural');
@@ -27,7 +27,7 @@ export default function App() {
   const [similarity, setSimilarity] = useState(0.75);
 
   // Bangla/Hindi Multilingual State
-  const [otherTitle, setOtherTitle] = useState('My Voiceover');
+  const [otherTitle, setOtherTitle] = useState('My Audio');
   const [otherText, setOtherText] = useState('');
   const [otherProvider, setOtherProvider] = useState('edge');
   const [otherVoice, setOtherVoice] = useState('bn-BD-NabanitaNeural');

@@ -178,7 +178,7 @@ export default function Sidebar({
                   transition: 'all 0.15s ease'
                 }}
               >
-                🇺🇸 English Studio
+                English Studio
               </button>
 
               <button 
@@ -200,7 +200,7 @@ export default function Sidebar({
                   transition: 'all 0.15s ease'
                 }}
               >
-                🇧🇩 Bangla Studio
+                Bangla Studio
               </button>
 
               <button 
@@ -222,7 +222,7 @@ export default function Sidebar({
                   transition: 'all 0.15s ease'
                 }}
               >
-                🇮🇳 Hindi Studio
+                Hindi Studio
               </button>
             </div>
           </div>
