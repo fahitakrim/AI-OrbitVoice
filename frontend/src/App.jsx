@@ -145,6 +145,13 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Deep Space Orbit Aurora Background */}
+      <div className="aurora-bg-wrapper" aria-hidden="true">
+        <div className="aurora-orb orb-1" />
+        <div className="aurora-orb orb-2" />
+        <div className="aurora-orb orb-3" />
+      </div>
+
       {/* Floating background orbit particles */}
       <div className="float-dot-1" />
       <div className="float-dot-2" />

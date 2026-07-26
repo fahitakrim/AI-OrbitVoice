@@ -1414,3 +1414,72 @@ body::after {
     border-radius: 6px !important;
   }
 }
+
+/* Ambient Deep Space Orbit Aurora Background */
+.aurora-bg-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+[data-theme="light"] .aurora-bg-wrapper {
+  opacity: 0.3;
+}
+
+.aurora-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  will-change: transform;
+}
+
+.aurora-orb.orb-1 {
+  top: -15%;
+  left: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(37, 99, 235, 0) 70%);
+  animation: floatOrb1 20s ease-in-out infinite alternate;
+}
+
+.aurora-orb.orb-2 {
+  bottom: -10%;
+  right: 5%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, rgba(124, 58, 237, 0) 70%);
+  animation: floatOrb2 25s ease-in-out infinite alternate;
+}
+
+.aurora-orb.orb-3 {
+  top: 35%;
+  left: 40%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.35) 0%, rgba(79, 70, 229, 0) 70%);
+  animation: floatOrb3 22s ease-in-out infinite alternate;
+}
+
+@keyframes floatOrb1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(100px, 80px, 0) scale(1.15); }
+  100% { transform: translate3d(-50px, 120px, 0) scale(0.95); }
+}
+
+@keyframes floatOrb2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-110px, -60px, 0) scale(1.2); }
+  100% { transform: translate3d(60px, -90px, 0) scale(0.9); }
+}
+
+@keyframes floatOrb3 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-70px, 90px, 0) scale(1.1); }
+  100% { transform: translate3d(80px, -50px, 0) scale(0.85); }
+}
