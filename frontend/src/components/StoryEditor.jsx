@@ -320,12 +320,12 @@ export default function StoryEditor({
 
   const getPlaceholderText = () => {
     if (studioLanguage === 'bn') {
-      return 'গল্পটি এখানে লিখুন বা পেস্ট করুন...';
+      return '✍️ আপনার গল্প বা ভয়েস ওভারের কথাগুলো এখানে টাইপ বা পেস্ট করুন...';
     }
     if (studioLanguage === 'hi') {
-      return 'अपनी कहानी यहाँ लिखें या पेस्ट करें...';
+      return '✍️ अपनी कहानी या वॉइसओवर टेक्स्ट यहाँ लिखें या पेस्ट करें...';
     }
-    return 'Paste your story, reel script, documentary narration, or product voiceover here...';
+    return '✍️ Type or paste your script here... (e.g. story, reel script, documentary narration, or product voiceover)';
   };
 
   const getLanguageLabel = () => {
@@ -365,7 +365,32 @@ export default function StoryEditor({
         </div>
 
         {/* Text Input Panel */}
-        <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', background: 'var(--bg-surface)' }}>
+        <div>
+          {/* Script Section Header Label */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem', padding: '0 0.25rem' }}>
+            <div style={{ fontSize: '0.88rem', fontWeight: '800', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>✍️ Enter Your Script</span>
+            </div>
+            {storyText ? (
+              <button 
+                onClick={() => setStoryText('')}
+                style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.74rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                title="Clear text box"
+              >
+                🗑️ Clear Text
+              </button>
+            ) : (
+              <button 
+                onClick={() => handleLoadTemplate('reels')}
+                style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '0.74rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                title="Load sample demo script"
+              >
+                ✨ Load Sample Script
+              </button>
+            )}
+          </div>
+
+          <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', background: 'var(--bg-surface)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div className="editor-title-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <span className="badge-pill badge-pill-blue" style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>
@@ -419,7 +444,7 @@ export default function StoryEditor({
             />
             
             {/* Sub-card actions (inside the text editor card bottom) */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '600' }}>
                 Words: <strong style={{ color: 'var(--text-primary)' }}>{getWordCount(storyText).toLocaleString()}</strong>
               </div>
@@ -427,8 +452,15 @@ export default function StoryEditor({
                 {storyText.length.toLocaleString()} / 30,000 chars
               </div>
             </div>
+            
+            {!storyText && (
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span>💡 Tip: Click inside the box above to write your script, or tap <strong>✨ Load Sample Script</strong> to test instantly!</span>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
         <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-surface)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           

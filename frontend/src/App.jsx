@@ -17,8 +17,8 @@ export default function App() {
   }, [theme]);
 
   // English State
-  const [storyTitle, setStoryTitle] = useState('Nebula Echoes');
-  const [storyText, setStoryText] = useState('The static on console nine was different tonight. It was not the usual background hiss of the stellar wind, nor the erratic popping of solar flares. It was a rhythmic, pulsing cadence. Three short bursts, a long pause, and then a low hum that vibrated the metal deck plates beneath Arthur\'s boots. He adjusted his headset, filtering out the ambient hum of the life support systems. The signal remained. It was coming from sector seven-nine, a barren stretch of the belt known only for dust and ice. No ships were scheduled. No mining rigs were active. Yet, the signal persisted, like a mechanical heartbeat calling out in the void.');
+  const [storyTitle, setStoryTitle] = useState('My Voiceover');
+  const [storyText, setStoryText] = useState('');
   const [provider, setProvider] = useState('edge');
   const [voice, setVoice] = useState('en-US-JennyNeural');
   const [speed, setSpeed] = useState(1.0);
@@ -27,8 +27,8 @@ export default function App() {
   const [similarity, setSimilarity] = useState(0.75);
 
   // Bangla/Hindi Multilingual State
-  const [otherTitle, setOtherTitle] = useState('Multilingual Narrative');
-  const [otherText, setOtherText] = useState('নবানিতা হলো মাইক্রোসফট এজ এর একটি বাস্তবসম্মত বাংলা ভয়েস আর্টিস্ট। যখন আপনি দীর্ঘ গল্প তৈরি করেন, তখন সেটির বিভিন্ন বাক্যের মাঝে স্বাচ্ছন্দ্যে শ্বাস নেয়ার বিরতি তৈরি করতে "Format Breath Pauses" বাটনটি চাপুন।\n\nनमस्ते, मधुर माइक्रोसॉफ्ट एज़ की एक बेहतरीन हिंदी आवाज़ है। आप इसके माध्यम से सुंदर कहानियों का वाचन रिकॉर्ड कर सकते हैं।');
+  const [otherTitle, setOtherTitle] = useState('My Voiceover');
+  const [otherText, setOtherText] = useState('');
   const [otherProvider, setOtherProvider] = useState('edge');
   const [otherVoice, setOtherVoice] = useState('bn-BD-NabanitaNeural');
   const [otherSpeed, setOtherSpeed] = useState(1.0);
