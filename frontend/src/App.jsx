@@ -3,7 +3,7 @@ import Sidebar from './components/Sidebar';
 import StoryEditor from './components/StoryEditor';
 import TTSConfig from './components/TTSConfig';
 import HistoryList from './components/HistoryList';
-import DynamicAudioCanvas from './components/DynamicAudioCanvas';
+import DynamicConstellationCanvas from './components/DynamicConstellationCanvas';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('editor');
@@ -146,8 +146,8 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Option 1 + Option 3: Studio Equalizer & Orbit Constellation Canvas */}
-      <DynamicAudioCanvas />
+      {/* Option 3: Interactive Orbit Starfield Constellation Background */}
+      <DynamicConstellationCanvas />
 
       {/* Floating background orbit particles */}
       <div className="float-dot-1" />
