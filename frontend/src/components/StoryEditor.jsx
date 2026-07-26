@@ -343,12 +343,24 @@ export default function StoryEditor({
       <div style={{ maxWidth: '840px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         
         {/* Centered Page Header */}
-        <div style={{ textAlign: 'center', padding: '1rem 0 1.75rem 0' }}>
-          <h1 style={{ fontSize: '2.1rem', fontWeight: '900', letterSpacing: '-0.04em', color: 'var(--text-primary)', marginBottom: '0.55rem' }}>
-            Text to Speech
+        <div style={{ textAlign: 'center', padding: '0.75rem 0 1.25rem 0' }}>
+          <h1 style={{ 
+            fontSize: '2.1rem', 
+            fontWeight: '900', 
+            letterSpacing: '-0.04em', 
+            marginBottom: '0.45rem',
+            background: 'linear-gradient(135deg, var(--text-primary) 40%, var(--accent-blue) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}>
+            <span>🎙️ Text to Speech</span>
           </h1>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '500', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
-            Create natural, emotional speech in seconds for commercial use to help you earn.
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', fontWeight: '500', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
+            Generate studio-grade neural voiceovers in seconds for video, audiobooks, and social media.
           </p>
         </div>
 
@@ -407,7 +419,10 @@ export default function StoryEditor({
             />
             
             {/* Sub-card actions (inside the text editor card bottom) */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem' }}>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                Words: <strong style={{ color: 'var(--text-primary)' }}>{getWordCount(storyText).toLocaleString()}</strong>
+              </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
                 {storyText.length.toLocaleString()} / 30,000 chars
               </div>
@@ -421,7 +436,18 @@ export default function StoryEditor({
             <div className="slider-container" style={{ marginBottom: 0 }}>
               <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
                 <span>Vocal Speed</span>
-                <span className="slider-val" style={{ fontWeight: 'bold' }}>{speed.toFixed(2)}x</span>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <span className="slider-val" style={{ fontWeight: 'bold' }}>{speed.toFixed(2)}x</span>
+                  {speed !== 1.0 && (
+                    <button 
+                      onClick={() => setSpeed(1.0)} 
+                      style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '0.65rem', cursor: 'pointer', fontWeight: '700', padding: 0 }}
+                      title="Reset Speed"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
               </div>
               <input 
                 type="range" 
@@ -438,7 +464,18 @@ export default function StoryEditor({
             <div className="slider-container" style={{ marginBottom: 0 }}>
               <div className="slider-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
                 <span>Vocal Pitch</span>
-                <span className="slider-val" style={{ fontWeight: 'bold' }}>{pitch}</span>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <span className="slider-val" style={{ fontWeight: 'bold' }}>{pitch}</span>
+                  {pitch !== '+0Hz' && (
+                    <button 
+                      onClick={() => setPitch('+0Hz')} 
+                      style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '0.65rem', cursor: 'pointer', fontWeight: '700', padding: 0 }}
+                      title="Reset Pitch"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
               </div>
               <input 
                 type="range" 
@@ -521,7 +558,7 @@ export default function StoryEditor({
                     height: '110px',
                     width: '185px',
                     flexShrink: 0,
-                    boxShadow: isSelected ? '0 0 0 1px var(--accent-blue)' : 'none',
+                    boxShadow: isSelected ? '0 4px 14px rgba(37, 99, 235, 0.25)' : 'none',
                     position: 'relative',
                     overflow: 'hidden'
                   }}
