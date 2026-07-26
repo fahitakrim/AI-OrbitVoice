@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import StoryEditor from './components/StoryEditor';
 import TTSConfig from './components/TTSConfig';
 import HistoryList from './components/HistoryList';
+import DynamicAudioCanvas from './components/DynamicAudioCanvas';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('editor');
@@ -145,7 +146,9 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Deep Space Orbit Aurora Background */}
+      {/* Dynamic Interactive Audio Canvas & Orbit Aurora Background */}
+      <DynamicAudioCanvas />
+      
       <div className="aurora-bg-wrapper" aria-hidden="true">
         <div className="aurora-orb orb-1" />
         <div className="aurora-orb orb-2" />
