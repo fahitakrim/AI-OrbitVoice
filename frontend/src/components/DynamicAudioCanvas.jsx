@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-export default function DynamicAudioCanvas({ isPlaying = false }) {
+export default function DynamicAudioCanvas() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -20,116 +20,84 @@ export default function DynamicAudioCanvas({ isPlaying = false }) {
 
     window.addEventListener('resize', handleResize);
 
-    // Mouse tracking for constellation hairline connections
-    const mouse = { x: width / 2, y: height / 2 };
+    // Smooth inertia mouse tracking
+    const mouse = { x: width / 2, y: height / 2, targetX: width / 2, targetY: height / 2 };
     const handleMouseMove = (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+      mouse.targetX = e.clientX;
+      mouse.targetY = e.clientY;
     };
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Option 3: Orbit Particle Constellation Data
-    const numParticles = Math.min(60, Math.floor(width / 25));
-    const particles = Array.from({ length: numParticles }, () => ({
+    // Optimized Particle Constellation Config
+    const particleCount = Math.min(50, Math.floor((width * height) / 25000));
+    const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
-      y: Math.random() * height * 0.75,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      radius: Math.random() * 1.8 + 1,
-      alpha: Math.random() * 0.5 + 0.3
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      radius: Math.random() * 1.6 + 1.2,
+      baseAlpha: Math.random() * 0.45 + 0.25
     }));
 
-    // Option 1: Minimalist Studio Equalizer Bars Data
-    const barCount = 48;
-
-    let step = 0;
+    // Pre-calculated squared thresholds for zero Math.sqrt CPU overhead
+    const maxLinkDistSq = 125 * 125; // 15625
+    const maxMouseDistSq = 160 * 160; // 25600
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      step += 0.04;
-      const audioBoost = isPlaying ? 2.0 : 1.0;
+      // Smooth inertia cursor interpolation
+      mouse.x += (mouse.targetX - mouse.x) * 0.08;
+      mouse.y += (mouse.targetY - mouse.y) * 0.08;
 
-      // ==========================================
-      // 1. OPTION 3: ORBIT CONSTELLATIONS & PARTICLES
-      // ==========================================
-      particles.forEach((p, i) => {
+      // Update & Draw Particles & Constellation Vectors
+      for (let i = 0; i < particleCount; i++) {
+        const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
 
+        // Bounce at boundaries
         if (p.x < 0 || p.x > width) p.vx *= -1;
-        if (p.y < 0 || p.y > height * 0.75) p.vy *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
 
-        // Draw particle dot
+        // Render particle dot
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(124, 58, 237, ${p.alpha * 0.6})`;
+        ctx.fillStyle = `rgba(124, 58, 237, ${p.baseAlpha * 0.7})`;
         ctx.fill();
 
-        // Connect particles within proximity
-        for (let j = i + 1; j < particles.length; j++) {
+        // Connect nearby particles using squared distance (Fast)
+        for (let j = i + 1; j < particleCount; j++) {
           const p2 = particles[j];
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const distSq = dx * dx + dy * dy;
 
-          if (dist < 110) {
-            const lineAlpha = (1 - dist / 110) * 0.15;
+          if (distSq < maxLinkDistSq) {
+            const alpha = (1 - distSq / maxLinkDistSq) * 0.16;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(37, 99, 235, ${lineAlpha})`;
-            ctx.lineWidth = 0.8;
+            ctx.strokeStyle = `rgba(37, 99, 235, ${alpha})`;
+            ctx.lineWidth = 0.75;
             ctx.stroke();
           }
         }
 
-        // Connect particles to mouse cursor
+        // Connect particle to mouse cursor (Fast)
         const mdx = p.x - mouse.x;
         const mdy = p.y - mouse.y;
-        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-        if (mdist < 140) {
-          const mlineAlpha = (1 - mdist / 140) * 0.25;
+        const mdistSq = mdx * mdx + mdy * mdy;
+
+        if (mdistSq < maxMouseDistSq) {
+          const malpha = (1 - mdistSq / maxMouseDistSq) * 0.28;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(59, 130, 246, ${mlineAlpha})`;
+          ctx.strokeStyle = `rgba(59, 130, 246, ${malpha})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
-      });
-
-      // ==========================================
-      // 2. OPTION 1: MINIMALIST STUDIO EQUALIZER BARS
-      // ==========================================
-      const barWidth = (width / barCount) * 0.5;
-      const gap = (width / barCount) * 0.5;
-      const bottomY = height - 20;
-
-      for (let k = 0; k < barCount; k++) {
-        const x = k * (barWidth + gap) + gap / 2;
-
-        // Calculate organic audio frequency bar height
-        const wave1 = Math.sin(step + k * 0.25) * 18;
-        const wave2 = Math.cos(step * 0.7 + k * 0.15) * 12;
-        const noise = Math.sin(k * 99 + step * 2) * 6;
-        const barHeight = Math.max(6, (30 + wave1 + wave2 + noise) * audioBoost);
-
-        const y = bottomY - barHeight;
-
-        // Gradient for EQ bars
-        const grad = ctx.createLinearGradient(x, y, x, bottomY);
-        grad.addColorStop(0, 'rgba(37, 99, 235, 0.35)');
-        grad.addColorStop(1, 'rgba(124, 58, 237, 0.05)');
-
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        if (ctx.roundRect) {
-          ctx.roundRect(x, y, barWidth, barHeight, [3, 3, 0, 0]);
-        } else {
-          ctx.rect(x, y, barWidth, barHeight);
-        }
-        ctx.fill();
       }
 
       animationFrameId = requestAnimationFrame(render);
@@ -142,7 +110,7 @@ export default function DynamicAudioCanvas({ isPlaying = false }) {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isPlaying]);
+  }, []);
 
   return (
     <canvas
@@ -155,7 +123,7 @@ export default function DynamicAudioCanvas({ isPlaying = false }) {
         height: '100vh',
         pointerEvents: 'none',
         zIndex: 0,
-        opacity: 0.95
+        opacity: 0.85
       }}
     />
   );
