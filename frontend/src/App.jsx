@@ -17,15 +17,30 @@ export default function App() {
     localStorage.setItem('vo_theme', theme);
   }, [theme]);
 
-  // English State
-  const [storyTitle, setStoryTitle] = useState('My Audio');
-  const [storyText, setStoryText] = useState('');
+  // English / Active State with Auto-Saved Draft Persistence
+  const [storyTitle, setStoryTitle] = useState(() => localStorage.getItem('vo_draft_title') || 'My Audio');
+  const [storyText, setStoryText] = useState(() => localStorage.getItem('vo_draft_text') || '');
   const [provider, setProvider] = useState('edge');
-  const [voice, setVoice] = useState('en-US-JennyNeural');
+  const [voice, setVoice] = useState('en-US-AvaMultilingualNeural');
   const [speed, setSpeed] = useState(1.0);
   const [pitch, setPitch] = useState('+0Hz');
   const [stability, setStability] = useState(0.5);
   const [similarity, setSimilarity] = useState(0.75);
+
+  // Auto-save script drafts so users never lose their writing
+  useEffect(() => {
+    if (storyText) {
+      localStorage.setItem('vo_draft_text', storyText);
+    } else {
+      localStorage.removeItem('vo_draft_text');
+    }
+  }, [storyText]);
+
+  useEffect(() => {
+    if (storyTitle) {
+      localStorage.setItem('vo_draft_title', storyTitle);
+    }
+  }, [storyTitle]);
 
   // Bangla/Hindi Multilingual State
   const [otherTitle, setOtherTitle] = useState('My Audio');
@@ -130,14 +145,22 @@ export default function App() {
         setActiveVoice('bn-BD-NabanitaNeural');
       } else if (studioLanguage === 'hi') {
         setActiveVoice('hi-IN-SwaraNeural');
+      } else if (studioLanguage === 'ur') {
+        setActiveVoice('ur-PK-UzmaNeural');
+      } else if (studioLanguage === 'ar') {
+        setActiveVoice('ar-SA-ZariyahNeural');
       } else if (studioLanguage === 'en') {
-        setActiveVoice('en-US-JennyNeural');
+        setActiveVoice('en-US-AvaMultilingualNeural');
       }
     } else if (activeProvider === 'google') {
       if (studioLanguage === 'bn') {
         setActiveVoice('bn');
       } else if (studioLanguage === 'hi') {
         setActiveVoice('hi');
+      } else if (studioLanguage === 'ur') {
+        setActiveVoice('ur');
+      } else if (studioLanguage === 'ar') {
+        setActiveVoice('ar');
       } else if (studioLanguage === 'en') {
         setActiveVoice('en');
       }

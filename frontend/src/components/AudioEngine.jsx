@@ -312,6 +312,16 @@ export default function AudioEngine({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const handleCopyAudioUrl = async () => {
+    try {
+      if (!mergedAudioUrl) return;
+      await navigator.clipboard.writeText(mergedAudioUrl);
+      showToast('Audio URL copied to clipboard!', 'success');
+    } catch (err) {
+      showToast('Failed to copy audio URL', 'error');
+    }
+  };
+
   const timelineProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const visualizerBars = Array.from({ length: 28 }, (_, i) => i);
 
@@ -488,10 +498,23 @@ export default function AudioEngine({
               </div>
 
               {/* Actions: Export */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
                 <span className="badge-pill badge-pill-green" style={{ fontSize: '0.62rem', fontWeight: 'bold', padding: '0.2rem 0.5rem' }}>
                   ✓ SAVED
                 </span>
+                <button
+                  type="button"
+                  onClick={handleCopyAudioUrl}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.74rem', borderRadius: '9999px', gap: '0.35rem' }}
+                  title="Copy Audio URL to clipboard"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <span>Copy Link</span>
+                </button>
                 <a 
                   href={mergedAudioUrl} 
                   download={`${(storyTitle || 'narration').trim().replace(/[^a-zA-Z0-9_\-\u0980-\u09FF\u0900-\u097F]/g, '_')}_master.mp3`}

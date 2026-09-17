@@ -11,27 +11,52 @@ const getCharCount = (text) => {
   return text.length;
 };
 
+const getEstimatedDuration = (text, speed = 1.0) => {
+  const words = getWordCount(text);
+  if (!words) return '0s';
+  const effectiveSpeed = Number(speed) > 0 ? Number(speed) : 1.0;
+  const totalSeconds = Math.max(1, Math.round((words / (150 * effectiveSpeed)) * 60));
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  if (mins === 0) return `~${secs}s`;
+  return `~${mins}m ${secs}s`;
+};
+
 const ALL_STUDIO_VOICES = {
   en: [
-    { id: 'en-US-AvaMultilingualNeural', name: 'Ava', badge: 'US Neural', description: 'Premium free voice. Highly realistic, natural, and expressive female narrator (Recommended)' },
-    { id: 'en-US-EmmaMultilingualNeural', name: 'Emma', badge: 'US Neural', description: 'Premium free voice. Crisp, clear, and intimate female narrator' },
-    { id: 'en-US-AndrewMultilingualNeural', name: 'Andrew', badge: 'US Neural', description: 'Premium free voice. Deep, engaging, and smooth presenter male' },
-    { id: 'en-US-BrianMultilingualNeural', name: 'Brian', badge: 'US Neural', description: 'Premium free voice. Crisp, natural professional male narration' },
-    { id: 'en-GB-RyanMultilingualNeural', name: 'Ryan', badge: 'UK Neural', description: 'Premium free voice. Warm, expressive British male narration' },
-    { id: 'en-GB-SoniaMultilingualNeural', name: 'Sonia', badge: 'UK Neural', description: 'Premium free voice. Clear, expressive British female narrator' },
-    { id: 'en-IN-NeerjaExpressiveNeural', name: 'Neerja', badge: 'IN Neural', description: 'Premium free voice. Rich, conversational, and emotionally expressive Indian accent.' },
-    { id: 'en-US-AnaNeural', name: 'Ana', badge: 'Child Female', description: 'Premium free child voice. Gentle, friendly kid tone.' },
-    { id: 'en-GB-ThomasNeural', name: 'Thomas', badge: 'Deep Narration', description: 'Premium free British voice. Deep, resonant, and formal male narrator.' }
+    { id: 'en-US-AvaMultilingualNeural', name: 'Ava', gender: 'female', badge: 'US Neural', description: 'Premium free voice. Highly realistic, natural, and expressive female narrator (Recommended)' },
+    { id: 'en-US-EmmaMultilingualNeural', name: 'Emma', gender: 'female', badge: 'US Neural', description: 'Premium free voice. Crisp, clear, and intimate female narrator' },
+    { id: 'en-US-AndrewMultilingualNeural', name: 'Andrew', gender: 'male', badge: 'US Neural', description: 'Premium free voice. Deep, engaging, and smooth presenter male' },
+    { id: 'en-US-BrianMultilingualNeural', name: 'Brian', gender: 'male', badge: 'US Neural', description: 'Premium free voice. Crisp, natural professional male narration' },
+    { id: 'en-US-GuyNeural', name: 'Guy', gender: 'male', badge: 'US Deep Male', description: 'Premium free voice. Classic broadcast style, authoritative documentary narration' },
+    { id: 'en-US-AriaNeural', name: 'Aria', gender: 'female', badge: 'US Expressive', description: 'Premium free voice. Natural storytelling and conversational tone' },
+    { id: 'en-US-ChristopherNeural', name: 'Christopher', gender: 'male', badge: 'US Corporate', description: 'Premium free voice. Professional, warm executive narration' },
+    { id: 'en-GB-RyanMultilingualNeural', name: 'Ryan', gender: 'male', badge: 'UK Neural', description: 'Premium free voice. Warm, expressive British male narration' },
+    { id: 'en-GB-SoniaMultilingualNeural', name: 'Sonia', gender: 'female', badge: 'UK Neural', description: 'Premium free voice. Clear, expressive British female narrator' },
+    { id: 'en-AU-NatashaNeural', name: 'Natasha', gender: 'female', badge: 'AU Neural', description: 'Premium free voice. Friendly, modern Australian female narration' },
+    { id: 'en-IN-NeerjaExpressiveNeural', name: 'Neerja', gender: 'female', badge: 'IN Neural', description: 'Premium free voice. Rich, conversational, and emotionally expressive Indian accent.' },
+    { id: 'en-US-AnaNeural', name: 'Ana', gender: 'female', badge: 'Child Female', description: 'Premium free child voice. Gentle, friendly kid tone.' },
+    { id: 'en-GB-ThomasNeural', name: 'Thomas', gender: 'male', badge: 'Deep Narration', description: 'Premium free British voice. Deep, resonant, and formal male narrator.' }
   ],
   bn: [
-    { id: 'bn-BD-NabanitaNeural', name: 'Nabanita', badge: 'BD Neural', description: 'Premium free Bangla voice. Warm and natural female narrator.' },
-    { id: 'bn-BD-PradeepNeural', name: 'Pradeep', badge: 'BD Neural', description: 'Premium free Bangla voice. Smooth and professional male narrator.' },
-    { id: 'bn-IN-TanishaaNeural', name: 'Tanishaa', badge: 'IN Neural', description: 'Premium free Bengali voice. Clear and expressive female narrator.' },
-    { id: 'bn-IN-BashkarNeural', name: 'Bashkar', badge: 'IN Neural', description: 'Premium free Bengali voice. Natural male narrator.' }
+    { id: 'bn-BD-NabanitaNeural', name: 'Nabanita', gender: 'female', badge: 'BD Neural', description: 'Premium free Bangla voice. Warm and natural female narrator.' },
+    { id: 'bn-BD-PradeepNeural', name: 'Pradeep', gender: 'male', badge: 'BD Neural', description: 'Premium free Bangla voice. Smooth and professional male narrator.' },
+    { id: 'bn-IN-TanishaaNeural', name: 'Tanishaa', gender: 'female', badge: 'IN Neural', description: 'Premium free Bengali voice. Clear and expressive female narrator.' },
+    { id: 'bn-IN-BashkarNeural', name: 'Bashkar', gender: 'male', badge: 'IN Neural', description: 'Premium free Bengali voice. Natural male narrator.' }
   ],
   hi: [
-    { id: 'hi-IN-SwaraNeural', name: 'Swara', badge: 'IN Neural', description: 'Premium free Hindi voice. Engaging and warm female narrator.' },
-    { id: 'hi-IN-MadhurNeural', name: 'Madhur', badge: 'IN Neural', description: 'Premium free Hindi voice. Deep and clear male narrator.' }
+    { id: 'hi-IN-SwaraNeural', name: 'Swara', gender: 'female', badge: 'IN Neural', description: 'Premium free Hindi voice. Engaging and warm female narrator.' },
+    { id: 'hi-IN-MadhurNeural', name: 'Madhur', gender: 'male', badge: 'IN Neural', description: 'Premium free Hindi voice. Deep and clear male narrator.' },
+    { id: 'hi-IN-AnanyaNeural', name: 'Ananya', gender: 'female', badge: 'IN Conversational', description: 'Premium free Hindi voice. Soft, friendly storytelling female.' },
+    { id: 'hi-IN-AaravNeural', name: 'Aarav', gender: 'male', badge: 'IN Modern Male', description: 'Premium free Hindi voice. Modern, energetic young narrator.' }
+  ],
+  ur: [
+    { id: 'ur-PK-UzmaNeural', name: 'Uzma', gender: 'female', badge: 'PK Neural', description: 'Premium free Urdu voice. Fluent, clear female narrator.' },
+    { id: 'ur-PK-AsadNeural', name: 'Asad', gender: 'male', badge: 'PK Neural', description: 'Premium free Urdu voice. Warm, resonant male narrator.' }
+  ],
+  ar: [
+    { id: 'ar-SA-ZariyahNeural', name: 'Zariyah', gender: 'female', badge: 'SA Neural', description: 'Premium free Arabic voice. Eloquent and formal female narrator.' },
+    { id: 'ar-SA-HamedNeural', name: 'Hamed', gender: 'male', badge: 'SA Neural', description: 'Premium free Arabic voice. Deep, expressive male narrator.' }
   ]
 };
 
@@ -93,8 +118,27 @@ export default function StoryEditor({
 }) {
   const [previewingVoiceId, setPreviewingVoiceId] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [voiceGenderFilter, setVoiceGenderFilter] = useState('all');
   const previewAudioRef = React.useRef(null);
   const voiceScrollRef = React.useRef(null);
+
+  const handlePasteClipboard = async () => {
+    try {
+      if (!navigator.clipboard) {
+        showToast('Clipboard access not supported on this browser', 'error');
+        return;
+      }
+      const text = await navigator.clipboard.readText();
+      if (!text || !text.trim()) {
+        showToast('Clipboard is empty', 'error');
+        return;
+      }
+      setStoryText(prev => prev ? `${prev}\n${text}` : text);
+      showToast('Text pasted from clipboard!', 'success');
+    } catch (err) {
+      showToast('Could not read clipboard. Please paste manually.', 'error');
+    }
+  };
 
   React.useEffect(() => {
     return () => {
@@ -325,12 +369,20 @@ export default function StoryEditor({
     if (studioLanguage === 'hi') {
       return 'अपनी कहानी या वॉइसओवर टेक्स्ट यहाँ लिखें या पेस्ट करें...';
     }
+    if (studioLanguage === 'ur') {
+      return 'اپنی کہانی یا اسکرپٹ یہاں لکھیں یا چسپاں کریں...';
+    }
+    if (studioLanguage === 'ar') {
+      return 'اكتب أو الصق النص هنا للتعليق الصوتي...';
+    }
     return 'Type or paste your script here (e.g. story, video script, audiobooks, or announcement)...';
   };
 
   const getLanguageLabel = () => {
     if (studioLanguage === 'bn') return 'BANGLA STUDIO';
     if (studioLanguage === 'hi') return 'HINDI STUDIO';
+    if (studioLanguage === 'ur') return 'URDU STUDIO';
+    if (studioLanguage === 'ar') return 'ARABIC STUDIO';
     return 'ENGLISH STUDIO';
   };
 
@@ -407,6 +459,9 @@ export default function StoryEditor({
             
             {/* Formatting Tools */}
             <div className="editor-toolbar" style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
+              <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handlePasteClipboard} title="Paste text from clipboard">
+                Paste
+              </button>
               <button className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.72rem', borderRadius: '6px' }} onClick={handleCleanText} title="Cleans script formatting">
                 Clean Text
               </button>
@@ -444,8 +499,10 @@ export default function StoryEditor({
             
             {/* Sub-card actions (inside the text editor card bottom) */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', marginTop: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '600' }}>
-                Words: <strong style={{ color: 'var(--text-primary)' }}>{getWordCount(storyText).toLocaleString()}</strong>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <span>Words: <strong style={{ color: 'var(--text-primary)' }}>{getWordCount(storyText).toLocaleString()}</strong></span>
+                <span>•</span>
+                <span>Est. Duration: <strong style={{ color: 'var(--accent-blue)' }}>{getEstimatedDuration(storyText, speed)}</strong></span>
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
                 {storyText.length.toLocaleString()} / 30,000 chars
@@ -547,9 +604,37 @@ export default function StoryEditor({
 
         {/* Voice Selection Cards Grid (Scrollable sidewise) */}
         <div style={{ marginTop: '0.5rem', width: '100%' }}>
-          <div className="form-label" style={{ marginBottom: '0.65rem', fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)', textAlign: 'left' }}>
-            Choose Narrator Voice
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div className="form-label" style={{ margin: 0, fontWeight: '800', fontSize: '0.86rem', color: 'var(--text-primary)' }}>
+              Choose Narrator Voice
+            </div>
+            
+            {/* Gender Filter Pills */}
+            <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--bg-surface)', padding: '0.15rem 0.25rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+              {['all', 'female', 'male'].map((filterKey) => (
+                <button
+                  key={filterKey}
+                  type="button"
+                  onClick={() => setVoiceGenderFilter(filterKey)}
+                  style={{
+                    padding: '0.2rem 0.6rem',
+                    fontSize: '0.68rem',
+                    fontWeight: '700',
+                    textTransform: 'capitalize',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    background: voiceGenderFilter === filterKey ? 'var(--accent-blue)' : 'transparent',
+                    color: voiceGenderFilter === filterKey ? '#ffffff' : 'var(--text-secondary)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {filterKey}
+                </button>
+              ))}
+            </div>
           </div>
+
           <div 
             ref={voiceScrollRef}
             className="no-scrollbar"
@@ -565,7 +650,7 @@ export default function StoryEditor({
               WebkitOverflowScrolling: 'touch'
             }}
           >
-            {(ALL_STUDIO_VOICES[studioLanguage] || []).map((v) => {
+            {((ALL_STUDIO_VOICES[studioLanguage] || []).filter(v => voiceGenderFilter === 'all' || v.gender === voiceGenderFilter)).map((v) => {
               const isSelected = voice === v.id;
               const isCurrentPreview = previewingVoiceId === v.id;
               

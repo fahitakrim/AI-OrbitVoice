@@ -224,6 +224,50 @@ export default function Sidebar({
               >
                 Hindi Studio
               </button>
+
+              <button 
+                onClick={() => handleLanguageClick('ur')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  width: '100%',
+                  padding: '0.35rem 0.5rem',
+                  fontSize: '0.74rem',
+                  fontWeight: '700',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: studioLanguage === 'ur' ? 'var(--accent-blue-dim)' : 'transparent',
+                  color: studioLanguage === 'ur' ? 'var(--accent-blue)' : 'var(--text-secondary)',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                Urdu Studio
+              </button>
+
+              <button 
+                onClick={() => handleLanguageClick('ar')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  width: '100%',
+                  padding: '0.35rem 0.5rem',
+                  fontSize: '0.74rem',
+                  fontWeight: '700',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: studioLanguage === 'ar' ? 'var(--accent-blue-dim)' : 'transparent',
+                  color: studioLanguage === 'ar' ? 'var(--accent-blue)' : 'var(--text-secondary)',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                Arabic Studio
+              </button>
             </div>
           </div>
         )}
