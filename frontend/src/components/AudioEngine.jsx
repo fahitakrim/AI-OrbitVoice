@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 const preprocessTtsText = (text) => {
   if (!text) return '';
@@ -51,6 +52,7 @@ export default function AudioEngine({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [isPlayerDismissed, setIsPlayerDismissed] = useState(false);
   
   const audioRef = useRef(null);
   const timelineRef = useRef(null);
@@ -246,6 +248,7 @@ export default function AudioEngine({
       if (!response.ok) throw new Error(data.error || 'Failed to merge audio segments');
 
       setMergedAudioUrl(`${backendUrl}${data.audioUrl}`);
+      setIsPlayerDismissed(false);
       setCompilerStep(5); // Completed
       setProgress(100);
       showToast('Audio compilation successful!', 'success');
@@ -392,9 +395,9 @@ export default function AudioEngine({
         )}
       </div>
 
-      {/* Merged master audio player */}
-      {mergedAudioUrl && (
-        <div className="audio-player-container">
+      {/* Merged master audio player popup mounted directly to document.body */}
+      {mergedAudioUrl && !isPlayerDismissed && typeof document !== 'undefined' && createPortal(
+        <div className="audio-player-container audio-player-popup">
           <audio 
             ref={audioRef} 
             src={mergedAudioUrl} 
@@ -403,12 +406,12 @@ export default function AudioEngine({
             onEnded={() => setIsPlaying(false)}
           />
 
-          <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '1.25rem', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '1rem', justifyContent: 'space-between' }}>
             
             {/* Visualizer */}
-            <div className="player-section-visualizer" style={{ width: '80px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+            <div className="player-section-visualizer" style={{ width: '54px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
               <div className={`visualizer-bars ${isPlaying ? 'playing' : ''}`} style={{ height: '20px', width: '100%' }}>
-                {visualizerBars.map((b) => (
+                {visualizerBars.slice(0, 18).map((b) => (
                   <div 
                     key={b} 
                     className="visualizer-bar" 
@@ -424,55 +427,55 @@ export default function AudioEngine({
             </div>
 
             {/* Title & Metadata */}
-            <div style={{ flex: '1 1 15%', minWidth: 0 }}>
+            <div style={{ flex: '1 1 18%', minWidth: 0 }}>
               <div className="player-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700', fontSize: '0.88rem' }}>
-                {storyTitle || 'Untitled Story'}
+                {storyTitle || 'My Audio'}
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.1rem', textTransform: 'uppercase', fontWeight: '600' }}>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginTop: '0.1rem', textTransform: 'uppercase', fontWeight: '600' }}>
                 {provider} • {voice}
               </div>
             </div>
 
             {/* Timeline & progress bar */}
-            <div className="audio-timeline-container" style={{ flex: '1 1 40%', maxWidth: '340px', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <span className="audio-time" style={{ fontSize: '0.72rem', textAlign: 'right' }}>{formatTime(currentTime)}</span>
+            <div className="audio-timeline-container" style={{ flex: '1 1 36%', maxWidth: '300px', display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+              <span className="audio-time" style={{ fontSize: '0.72rem', textAlign: 'right', minWidth: '32px' }}>{formatTime(currentTime)}</span>
               <div 
                 ref={timelineRef} 
                 className="audio-timeline" 
                 onClick={handleTimelineClick}
-                style={{ flex: 1, height: '4px', background: '#e2e8f0', position: 'relative', cursor: 'pointer', borderRadius: '9999px' }}
+                style={{ flex: 1, height: '5px', background: 'var(--border-color)', position: 'relative', cursor: 'pointer', borderRadius: '9999px' }}
               >
                 <div className="audio-timeline-fill" style={{ width: `${timelineProgress}%`, height: '100%', background: 'var(--accent-blue)', borderRadius: '9999px' }} />
               </div>
-              <span className="audio-time" style={{ fontSize: '0.72rem' }}>{formatTime(duration)}</span>
+              <span className="audio-time" style={{ fontSize: '0.72rem', minWidth: '32px' }}>{formatTime(duration)}</span>
             </div>
 
             {/* Controls & Export Row */}
-            <div className="audio-player-controls-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div className="audio-player-controls-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', flexWrap: 'wrap' }}>
               {/* Controls */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
-                <button className="player-btn-circle" onClick={togglePlay} style={{ width: '32px', height: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                <button className="player-btn-circle" onClick={togglePlay} style={{ width: '34px', height: '34px' }}>
                   {isPlaying ? (
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff' }}>
                       <rect x="6" y="4" width="4" height="16" />
                       <rect x="14" y="4" width="4" height="16" />
                     </svg>
                   ) : (
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff', marginLeft: '1px' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff', marginLeft: '1px' }}>
                       <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
                     </svg>
                   )}
                 </button>
 
-                <button className="player-btn-sec" onClick={toggleMute} style={{ width: '24px', height: '24px' }} title="Mute/Unmute">
+                <button className="player-btn-sec" onClick={toggleMute} style={{ width: '26px', height: '26px' }} title="Mute/Unmute">
                   {isMuted ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M11 5 6 9H2v6h4l5 4V5Z" />
                       <line x1="22" x2="16" y1="9" y2="15" />
                       <line x1="16" x2="22" y1="9" y2="15" />
                     </svg>
                   ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M11 5 6 9H2v6h4l5 4V5Z" />
                       <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
                     </svg>
@@ -481,7 +484,7 @@ export default function AudioEngine({
 
                 <select 
                   className="form-select" 
-                  style={{ width: '62px', padding: '0.15rem 0.35rem', fontSize: '0.72rem', background: 'transparent', border: '1px solid var(--border-color)', height: '26px', borderRadius: '4px' }}
+                  style={{ width: '60px', padding: '0.15rem 0.25rem', fontSize: '0.72rem', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', height: '26px', borderRadius: '6px' }}
                   onChange={(e) => {
                     if (audioRef.current) {
                       audioRef.current.playbackRate = Number(e.target.value);
@@ -498,15 +501,12 @@ export default function AudioEngine({
               </div>
 
               {/* Actions: Export */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
-                <span className="badge-pill badge-pill-green" style={{ fontSize: '0.62rem', fontWeight: 'bold', padding: '0.2rem 0.5rem' }}>
-                  ✓ SAVED
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
                 <button
                   type="button"
                   onClick={handleCopyAudioUrl}
                   className="btn btn-secondary"
-                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.74rem', borderRadius: '9999px', gap: '0.35rem' }}
+                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem', borderRadius: '9999px', gap: '0.3rem' }}
                   title="Copy Audio URL to clipboard"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -519,7 +519,7 @@ export default function AudioEngine({
                   href={mergedAudioUrl} 
                   download={`${(storyTitle || 'narration').trim().replace(/[^a-zA-Z0-9_\-\u0980-\u09FF\u0900-\u097F]/g, '_')}_master.mp3`}
                   className="btn btn-primary"
-                  style={{ padding: '0.4rem 0.95rem', fontSize: '0.76rem', borderRadius: '9999px', gap: '0.35rem' }}
+                  style={{ padding: '0.35rem 0.8rem', fontSize: '0.72rem', borderRadius: '9999px', gap: '0.3rem' }}
                   title="Export MP3 File"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -529,10 +529,36 @@ export default function AudioEngine({
                   </svg>
                   <span>Export MP3</span>
                 </a>
+
+                {/* Dismiss Popup Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsPlayerDismissed(true)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: '0.2rem',
+                    marginLeft: '0.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Close Player Popup"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
