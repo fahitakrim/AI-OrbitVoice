@@ -406,155 +406,149 @@ export default function AudioEngine({
             onEnded={() => setIsPlaying(false)}
           />
 
-          <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '1rem', justifyContent: 'space-between' }}>
+          <div className="player-inner-wrapper">
             
-            {/* Visualizer */}
-            <div className="player-section-visualizer" style={{ width: '54px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-              <div className={`visualizer-bars ${isPlaying ? 'playing' : ''}`} style={{ height: '20px', width: '100%' }}>
-                {visualizerBars.slice(0, 18).map((b) => (
-                  <div 
-                    key={b} 
-                    className="visualizer-bar" 
-                    style={{ 
-                      width: '2px',
-                      height: isPlaying ? undefined : '3px',
-                      background: 'var(--accent-blue)',
-                      animationDelay: `${Math.random() * 0.4}s`
-                    }}
-                  />
-                ))}
+            {/* Left: Visualizer & Track Info */}
+            <div className="player-info-group">
+              <div className="player-section-visualizer">
+                <div className={`visualizer-bars ${isPlaying ? 'playing' : ''}`} style={{ height: '18px', width: '100%' }}>
+                  {visualizerBars.slice(0, 12).map((b) => (
+                    <div 
+                      key={b} 
+                      className="visualizer-bar" 
+                      style={{ 
+                        width: '2px',
+                        height: isPlaying ? undefined : '3px',
+                        background: 'var(--accent-blue)',
+                        animationDelay: `${Math.random() * 0.4}s`
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="player-text-meta">
+                <div className="player-title" title={storyTitle || 'My Audio'}>
+                  {storyTitle || 'My Audio'}
+                </div>
+                <div className="player-subtitle">
+                  {voice.replace('Neural', '').replace('Multilingual', '')}
+                </div>
               </div>
             </div>
 
-            {/* Title & Metadata */}
-            <div style={{ flex: '1 1 18%', minWidth: 0 }}>
-              <div className="player-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700', fontSize: '0.88rem' }}>
-                {storyTitle || 'My Audio'}
-              </div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginTop: '0.1rem', textTransform: 'uppercase', fontWeight: '600' }}>
-                {provider} • {voice}
-              </div>
-            </div>
-
-            {/* Timeline & progress bar */}
-            <div className="audio-timeline-container" style={{ flex: '1 1 36%', maxWidth: '300px', display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
-              <span className="audio-time" style={{ fontSize: '0.72rem', textAlign: 'right', minWidth: '32px' }}>{formatTime(currentTime)}</span>
-              <div 
-                ref={timelineRef} 
-                className="audio-timeline" 
-                onClick={handleTimelineClick}
-                style={{ flex: 1, height: '5px', background: 'var(--border-color)', position: 'relative', cursor: 'pointer', borderRadius: '9999px' }}
+            {/* Center: Play button & Timeline */}
+            <div className="player-center-group">
+              <button 
+                type="button"
+                className="player-btn-circle" 
+                onClick={togglePlay}
+                style={{ width: '34px', height: '34px', flexShrink: 0 }}
+                title={isPlaying ? 'Pause' : 'Play'}
               >
-                <div className="audio-timeline-fill" style={{ width: `${timelineProgress}%`, height: '100%', background: 'var(--accent-blue)', borderRadius: '9999px' }} />
+                {isPlaying ? (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff' }}>
+                    <rect x="6" y="4" width="4" height="16" />
+                    <rect x="14" y="4" width="4" height="16" />
+                  </svg>
+                ) : (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff', marginLeft: '2px' }}>
+                    <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
+                  </svg>
+                )}
+              </button>
+
+              <div className="audio-timeline-container">
+                <span className="audio-time">{formatTime(currentTime)}</span>
+                <div 
+                  ref={timelineRef} 
+                  className="audio-timeline" 
+                  onClick={handleTimelineClick}
+                >
+                  <div className="audio-timeline-fill" style={{ width: `${timelineProgress}%` }} />
+                </div>
+                <span className="audio-time">{formatTime(duration)}</span>
               </div>
-              <span className="audio-time" style={{ fontSize: '0.72rem', minWidth: '32px' }}>{formatTime(duration)}</span>
+
+              <button 
+                type="button"
+                className="player-btn-sec" 
+                onClick={toggleMute} 
+                style={{ width: '24px', height: '24px', flexShrink: 0 }}
+                title={isMuted ? 'Unmute' : 'Mute'}
+              >
+                {isMuted ? (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+                    <line x1="22" x2="16" y1="9" y2="15" />
+                    <line x1="16" x2="22" y1="9" y2="15" />
+                  </svg>
+                ) : (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg>
+                )}
+              </button>
+
+              <select 
+                className="form-select player-speed-select" 
+                onChange={(e) => {
+                  if (audioRef.current) {
+                    audioRef.current.playbackRate = Number(e.target.value);
+                  }
+                }}
+                defaultValue="1.0"
+                title="Playback Speed"
+              >
+                <option value="0.75">0.75x</option>
+                <option value="1.0">1.0x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2.0">2.0x</option>
+              </select>
             </div>
 
-            {/* Controls & Export Row */}
-            <div className="audio-player-controls-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {/* Controls */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-                <button className="player-btn-circle" onClick={togglePlay} style={{ width: '34px', height: '34px' }}>
-                  {isPlaying ? (
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff' }}>
-                      <rect x="6" y="4" width="4" height="16" />
-                      <rect x="14" y="4" width="4" height="16" />
-                    </svg>
-                  ) : (
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: '#fff', marginLeft: '1px' }}>
-                      <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
-                    </svg>
-                  )}
-                </button>
+            {/* Right: Actions & Close */}
+            <div className="player-actions-group">
+              <button
+                type="button"
+                onClick={handleCopyAudioUrl}
+                className="btn btn-secondary player-action-btn"
+                title="Copy audio URL"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <span>Copy Link</span>
+              </button>
 
-                <button className="player-btn-sec" onClick={toggleMute} style={{ width: '26px', height: '26px' }} title="Mute/Unmute">
-                  {isMuted ? (
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
-                      <line x1="22" x2="16" y1="9" y2="15" />
-                      <line x1="16" x2="22" y1="9" y2="15" />
-                    </svg>
-                  ) : (
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
-                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                    </svg>
-                  )}
-                </button>
+              <a 
+                href={mergedAudioUrl} 
+                download={`${(storyTitle || 'narration').trim().replace(/[^a-zA-Z0-9_\-\u0980-\u09FF\u0900-\u097F]/g, '_')}_master.mp3`}
+                className="btn btn-primary player-action-btn"
+                title="Export MP3 File"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span>Export MP3</span>
+              </a>
 
-                <select 
-                  className="form-select" 
-                  style={{ width: '60px', padding: '0.15rem 0.25rem', fontSize: '0.72rem', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', height: '26px', borderRadius: '6px' }}
-                  onChange={(e) => {
-                    if (audioRef.current) {
-                      audioRef.current.playbackRate = Number(e.target.value);
-                    }
-                  }}
-                  defaultValue="1.0"
-                >
-                  <option value="0.75">0.75x</option>
-                  <option value="1.0">1.0x</option>
-                  <option value="1.25">1.25x</option>
-                  <option value="1.5">1.5x</option>
-                  <option value="2.0">2.0x</option>
-                </select>
-              </div>
-
-              {/* Actions: Export */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-                <button
-                  type="button"
-                  onClick={handleCopyAudioUrl}
-                  className="btn btn-secondary"
-                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem', borderRadius: '9999px', gap: '0.3rem' }}
-                  title="Copy Audio URL to clipboard"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                  <span>Copy Link</span>
-                </button>
-                <a 
-                  href={mergedAudioUrl} 
-                  download={`${(storyTitle || 'narration').trim().replace(/[^a-zA-Z0-9_\-\u0980-\u09FF\u0900-\u097F]/g, '_')}_master.mp3`}
-                  className="btn btn-primary"
-                  style={{ padding: '0.35rem 0.8rem', fontSize: '0.72rem', borderRadius: '9999px', gap: '0.3rem' }}
-                  title="Export MP3 File"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  <span>Export MP3</span>
-                </a>
-
-                {/* Dismiss Popup Button */}
-                <button
-                  type="button"
-                  onClick={() => setIsPlayerDismissed(true)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    padding: '0.2rem',
-                    marginLeft: '0.25rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '50%',
-                    transition: 'all 0.15s ease'
-                  }}
-                  title="Close Player Popup"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsPlayerDismissed(true)}
+                className="player-close-btn"
+                title="Close Player"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>,
