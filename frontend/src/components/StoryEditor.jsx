@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AudioEngine from './AudioEngine';
+import { SkinGlyphBadge } from '../ui/theme';
 
 const getWordCount = (text) => {
   if (!text) return 0;
@@ -396,21 +397,20 @@ export default function StoryEditor({
         
         {/* Centered Page Header */}
         <div style={{ textAlign: 'center', padding: '0.75rem 0 1.25rem 0' }}>
-          <h1 style={{ 
-            fontSize: '2.1rem', 
-            fontWeight: '900', 
-            letterSpacing: '-0.04em', 
-            marginBottom: '0.45rem',
-            background: 'linear-gradient(135deg, var(--text-primary) 40%, var(--accent-blue) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            Text to Speech
-          </h1>
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', fontWeight: '500', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem', marginBottom: '0.45rem', flexWrap: 'wrap' }}>
+            <h1 className="screen-dot" style={{ 
+              fontSize: '2rem', 
+              fontWeight: '900', 
+              letterSpacing: '0.5px', 
+              color: 'var(--skin-text-primary)',
+              fontFamily: 'var(--font-dot)',
+              margin: 0
+            }}>
+              TEXT TO SPEECH
+            </h1>
+            <SkinGlyphBadge label="NEURAL STUDIO" />
+          </div>
+          <p style={{ fontSize: '0.88rem', color: 'var(--skin-text-secondary)', fontWeight: '500', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
             Generate studio-grade neural voiceovers in seconds for video, audiobooks, and social media.
           </p>
         </div>
@@ -444,9 +444,7 @@ export default function StoryEditor({
           <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', background: 'var(--bg-surface)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div className="editor-title-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span className="badge-pill badge-pill-blue" style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>
-                {getLanguageLabel()}
-              </span>
+              <SkinGlyphBadge label={getLanguageLabel()} />
               <input 
                 type="text" 
                 className="form-input" 
@@ -610,22 +608,22 @@ export default function StoryEditor({
             </div>
             
             {/* Gender Filter Pills */}
-            <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--bg-surface)', padding: '0.15rem 0.25rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--skin-surface-variant)', padding: '0.2rem 0.3rem', borderRadius: 'var(--radius-pill)', border: 'var(--border-hairline) solid var(--skin-border)' }}>
               {['all', 'female', 'male'].map((filterKey) => (
                 <button
                   key={filterKey}
                   type="button"
                   onClick={() => setVoiceGenderFilter(filterKey)}
                   style={{
-                    padding: '0.2rem 0.6rem',
+                    padding: '0.25rem 0.65rem',
                     fontSize: '0.68rem',
                     fontWeight: '700',
                     textTransform: 'capitalize',
                     border: 'none',
-                    borderRadius: '4px',
+                    borderRadius: 'var(--radius-pill)',
                     cursor: 'pointer',
-                    background: voiceGenderFilter === filterKey ? 'var(--accent-blue)' : 'transparent',
-                    color: voiceGenderFilter === filterKey ? '#ffffff' : 'var(--text-secondary)',
+                    background: voiceGenderFilter === filterKey ? 'var(--skin-ink)' : 'transparent',
+                    color: voiceGenderFilter === filterKey ? 'var(--skin-on-ink)' : 'var(--skin-text-secondary)',
                     transition: 'all 0.15s ease'
                   }}
                 >
@@ -662,9 +660,9 @@ export default function StoryEditor({
                   style={{ 
                     padding: '1rem', 
                     cursor: 'pointer', 
-                    background: isSelected ? 'var(--accent-blue-dim)' : 'var(--bg-surface)', 
-                    border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)', 
-                    borderRadius: '12px',
+                    background: isSelected ? 'var(--skin-surface-variant)' : 'var(--skin-surface)', 
+                    border: isSelected ? '2px solid var(--skin-accent)' : 'var(--border-hairline) solid var(--skin-border)', 
+                    borderRadius: 'var(--radius-button)',
                     transition: 'all 0.2s ease', 
                     textAlign: 'left',
                     display: 'flex',
@@ -673,34 +671,27 @@ export default function StoryEditor({
                     height: '110px',
                     width: '185px',
                     flexShrink: 0,
-                    boxShadow: isSelected ? '0 4px 14px rgba(37, 99, 235, 0.25)' : 'none',
+                    boxShadow: isSelected ? '0 4px 16px var(--skin-shadow)' : 'none',
                     position: 'relative',
                     overflow: 'hidden'
                   }}
-                  onMouseOver={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'var(--accent-blue)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
-                  onMouseOut={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'none'; } }}
+                  onMouseOver={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'var(--skin-accent)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
+                  onMouseOut={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'var(--skin-border)'; e.currentTarget.style.transform = 'none'; } }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.84rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: '0.84rem', fontWeight: '800', color: 'var(--skin-text-primary)', lineHeight: '1.4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {v.name}
                     </div>
-                    <div style={{ fontSize: '0.64rem', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '0.2rem' }}>
+                    <div style={{ fontSize: '0.64rem', color: 'var(--skin-text-secondary)', fontWeight: '600', marginTop: '0.2rem' }}>
                       {v.description.split('.')[0] || v.description}
                     </div>
                   </div>
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', zIndex: 2 }}>
-                    <span style={{ 
-                      fontSize: '0.62rem', 
-                      padding: '0.15rem 0.45rem', 
-                      borderRadius: '4px', 
-                      background: isSelected ? 'rgba(37, 99, 235, 0.2)' : 'rgba(255, 255, 255, 0.03)', 
-                      color: isSelected ? 'var(--accent-blue)' : 'var(--text-secondary)', 
-                      fontWeight: 'bold',
-                      border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)'
-                    }}>
-                      {v.badge}
-                    </span>
+                    <SkinGlyphBadge 
+                      label={v.badge} 
+                      color={isSelected ? 'var(--skin-accent)' : undefined} 
+                    />
                     
                     {/* Preview Audio Circle Button */}
                     <button
@@ -710,9 +701,9 @@ export default function StoryEditor({
                         width: '24px', 
                         height: '24px', 
                         borderRadius: '50%', 
-                        background: isCurrentPreview ? 'var(--accent-blue)' : 'var(--border-color)', 
-                        color: isCurrentPreview ? '#ffffff' : 'var(--text-secondary)',
-                        border: 'none',
+                        background: isCurrentPreview ? 'var(--skin-ink)' : 'var(--skin-surface-variant)', 
+                        color: isCurrentPreview ? 'var(--skin-on-ink)' : 'var(--skin-text-secondary)',
+                        border: 'var(--border-hairline) solid var(--skin-border)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

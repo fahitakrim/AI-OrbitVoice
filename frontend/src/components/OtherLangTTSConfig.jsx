@@ -34,9 +34,9 @@ const GOOGLE_VOICES = [
 ];
 
 const getLanguageLabel = (id) => {
-  if (id.startsWith('bn')) return { label: 'BANGLA', color: 'var(--accent-blue)', bg: 'var(--accent-blue-dim)' };
-  if (id.startsWith('hi')) return { label: 'HINDI', color: '#d97706', bg: '#fef3c7' }; 
-  return { label: 'MULTI', color: 'var(--text-secondary)', bg: 'var(--bg-base)' };
+  if (id.startsWith('bn')) return { label: 'BANGLA', color: 'var(--skin-accent-secondary)', bg: 'rgba(255, 179, 0, 0.16)' };
+  if (id.startsWith('hi')) return { label: 'HINDI', color: 'var(--skin-accent-tertiary)', bg: 'rgba(25, 118, 210, 0.16)' }; 
+  return { label: 'MULTI', color: 'var(--skin-text-secondary)', bg: 'var(--skin-surface-variant)' };
 };
 
 const PROVIDER_METADATA = {

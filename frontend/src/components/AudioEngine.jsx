@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { SkinPillButton } from '../ui/theme';
 
 const preprocessTtsText = (text) => {
   if (!text) return '';
@@ -23,6 +24,8 @@ const preprocessTtsText = (text) => {
 
   return cleaned;
 };
+
+const generateProjectId = () => `project_${Date.now()}`;
 
 export default function AudioEngine({ 
   storyTitle, 
@@ -97,7 +100,7 @@ export default function AudioEngine({
     return allChunks;
   };
 
-  const startSynthesis = async () => {
+  const handleStartSynthesis = async () => {
     if (storyText && storyText.length > charLimit) {
       showToast(`Text length (${storyText.length.toLocaleString()}) exceeds the limit of ${charLimit.toLocaleString()} characters.`, 'error');
       return;
@@ -129,7 +132,7 @@ export default function AudioEngine({
       return;
     }
 
-    const projectId = `project_${Date.now()}`;
+    const projectId = generateProjectId();
     setCurrentProjectId(projectId);
     setSynthesisQueue(chunks);
     setIsSynthesizing(true);
@@ -178,11 +181,11 @@ export default function AudioEngine({
     }
 
     if (successCount === chunks.length) {
-      await triggerAudioMerge(projectId, chunks);
+      await triggerAudioMerge(projectId);
     }
   };
 
-  const retryChunk = async (index) => {
+  const handleRetryChunk = async (index) => {
     setSynthesisQueue(prev => prev.map((c, idx) => idx === index ? { ...c, status: 'active' } : c));
     
     const projectId = currentProjectId || `project_${Date.now()}`;
@@ -213,7 +216,7 @@ export default function AudioEngine({
         setProgress(Math.round(15 + (successCount / next.length) * 70));
         
         if (next.every(c => c.status === 'done')) {
-          triggerAudioMerge(projectId, next);
+          triggerAudioMerge(projectId);
         }
         return next;
       });
@@ -226,7 +229,7 @@ export default function AudioEngine({
     }
   };
 
-  const triggerAudioMerge = async (projectId, currentQueue) => {
+  const triggerAudioMerge = async (projectId) => {
     try {
       setCompilerStep(4); // Merging audio
       setProgress(90);
@@ -320,7 +323,7 @@ export default function AudioEngine({
       if (!mergedAudioUrl) return;
       await navigator.clipboard.writeText(mergedAudioUrl);
       showToast('Audio URL copied to clipboard!', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to copy audio URL', 'error');
     }
   };
@@ -333,10 +336,9 @@ export default function AudioEngine({
       
       {/* Generate Voiceover Primary Trigger */}
       <div>
-        <button 
-          className="btn btn-primary" 
-          style={{ width: '100%', padding: '0.7rem 1.15rem', fontSize: '0.88rem', fontWeight: '700', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
-          onClick={startSynthesis}
+        <SkinPillButton 
+          style={{ width: '100%', padding: '0.75rem 1.25rem', fontSize: '0.88rem' }}
+          onClick={handleStartSynthesis}
           disabled={isSynthesizing}
         >
           {/* Spark/Play Vector Hybrid */}
@@ -345,7 +347,7 @@ export default function AudioEngine({
             <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
           </svg>
           {isSynthesizing ? 'Compiling script...' : 'Generate Voiceover'}
-        </button>
+        </SkinPillButton>
 
         {/* Compiler queue display */}
         {compilerStep > 0 && (
@@ -381,7 +383,7 @@ export default function AudioEngine({
                     </span>
                     {item.status === 'error' && (
                       <button 
-                        onClick={() => retryChunk(idx)}
+                        onClick={() => handleRetryChunk(idx)}
                         style={{ background: '#fff', border: '1px solid var(--accent-danger)', color: 'var(--accent-danger)', fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
                       >
                         RETRY
@@ -420,7 +422,7 @@ export default function AudioEngine({
                         width: '2px',
                         height: isPlaying ? undefined : '3px',
                         background: 'var(--accent-blue)',
-                        animationDelay: `${Math.random() * 0.4}s`
+                        animationDelay: `${(b % 5) * 0.08}s`
                       }}
                     />
                   ))}
@@ -526,7 +528,7 @@ export default function AudioEngine({
 
               <a 
                 href={mergedAudioUrl} 
-                download={`${(storyTitle || 'narration').trim().replace(/[^a-zA-Z0-9_\-\u0980-\u09FF\u0900-\u097F]/g, '_')}_master.mp3`}
+                download={`${(storyTitle || 'narration').trim().replace(/[^a-zA-Z0-9_\u0980-\u09FF\u0900-\u097F-]/g, '_')}_master.mp3`}
                 className="btn btn-primary player-action-btn"
                 title="Export MP3 File"
               >

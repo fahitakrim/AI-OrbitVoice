@@ -1,7 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useSkinTheme } from '../ui/theme';
+
+const hexToRgb = (hex, fallback = '25, 118, 210') => {
+  if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return fallback;
+  const clean = hex.replace('#', '');
+  if (clean.length === 6) {
+    const num = parseInt(clean, 16);
+    return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+  }
+  return fallback;
+};
 
 export default function DynamicConstellationCanvas({ isPlaying = false }) {
   const canvasRef = useRef(null);
+  const { colors, themeMode } = useSkinTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -43,11 +55,17 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
 
+    const rgbPrimary = hexToRgb(colors.accentTertiary, '25, 118, 210');
+    const rgbSecondary = hexToRgb(colors.accentSecondary, '255, 179, 0');
+    const rgbAccent = hexToRgb(colors.accent, '229, 57, 53');
+
     // Create Constellation Particle Objects
-    const particleCount = Math.floor(Math.min(width, height) * 0.09);
+    const particleCount = Math.floor(Math.min(width, height) * 0.08);
     const particles = [];
 
     for (let i = 0; i < particleCount; i++) {
+      const rand = Math.random();
+      const rgbBase = rand > 0.55 ? rgbPrimary : rand > 0.25 ? rgbSecondary : rgbAccent;
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -55,14 +73,13 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
         vy: (Math.random() - 0.5) * 0.6,
         radius: Math.random() * 2 + 1,
         baseRadius: Math.random() * 2 + 1,
-        color: Math.random() > 0.4 ? 'rgba(37, 99, 235, ' : 'rgba(124, 58, 237, ',
-        alpha: Math.random() * 0.5 + 0.3
+        color: `rgba(${rgbBase}, `,
+        alpha: Math.random() * 0.45 + 0.25
       });
     }
 
     // 60FPS Render Loop
     const render = () => {
-      // Smooth Mouse Interpolation
       mouse.x += (mouse.targetX - mouse.x) * 0.1;
       mouse.y += (mouse.targetY - mouse.y) * 0.1;
 
@@ -74,15 +91,12 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Position Updates
         p.x += p.vx * speedMultiplier;
         p.y += p.vy * speedMultiplier;
 
-        // Screen Edge Bouncing
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
 
-        // Interactive Mouse Magnetic & Growth Effect
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -91,11 +105,8 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
           const force = (mouse.radius - dist) / mouse.radius;
           const angle = Math.atan2(dy, dx);
           
-          // Gently attract particles towards cursor
           p.x += Math.cos(angle) * force * 1.5;
           p.y += Math.sin(angle) * force * 1.5;
-
-          // Expand particle size near cursor
           p.radius = p.baseRadius + force * 2.5;
         } else {
           p.radius = Math.max(p.baseRadius, p.radius - 0.1);
@@ -105,10 +116,10 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `${p.color}${p.alpha})`;
-        ctx.shadowColor = 'rgba(37, 99, 235, 0.5)';
+        ctx.shadowColor = `rgba(${rgbAccent}, 0.4)`;
         ctx.shadowBlur = dist < mouse.radius ? 8 : 0;
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset shadow
+        ctx.shadowBlur = 0;
 
         // Draw Inter-Particle Constellation Lines
         for (let j = i + 1; j < particles.length; j++) {
@@ -118,11 +129,11 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
           const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
 
           if (pdist < 110) {
-            const lineAlpha = (1 - pdist / 110) * 0.25;
+            const lineAlpha = (1 - pdist / 110) * 0.22;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(37, 99, 235, ${lineAlpha})`;
+            ctx.strokeStyle = `rgba(${rgbPrimary}, ${lineAlpha})`;
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
@@ -130,11 +141,11 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
 
         // Draw Mouse-to-Particle Constellation Connections
         if (mouse.active && dist < mouse.radius) {
-          const mouseLineAlpha = (1 - dist / mouse.radius) * 0.45;
+          const mouseLineAlpha = (1 - dist / mouse.radius) * 0.4;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(124, 58, 237, ${mouseLineAlpha})`;
+          ctx.strokeStyle = `rgba(${rgbAccent}, ${mouseLineAlpha})`;
           ctx.lineWidth = 1.2;
           ctx.stroke();
         }
@@ -151,7 +162,7 @@ export default function DynamicConstellationCanvas({ isPlaying = false }) {
       window.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isPlaying]);
+  }, [isPlaying, colors, themeMode]);
 
   return (
     <canvas
