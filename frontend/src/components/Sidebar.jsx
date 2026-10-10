@@ -398,58 +398,128 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* Minimal Creator Card pointing to Facebook */}
-        <a 
-          href="https://www.facebook.com/share/1F5WW35d7p/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        {/* Developer Info Card with X and Facebook icons alongside name */}
+        <div 
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '0.75rem', 
+            justifyContent: 'space-between', 
+            gap: '0.5rem', 
             padding: '0.85rem 1rem', 
             borderTop: 'var(--border-hairline) solid var(--skin-border)', 
             width: '100%', 
-            textDecoration: 'none', 
             color: 'inherit',
-            transition: 'background 0.2s ease',
-            cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.currentTarget.style.background = 'var(--skin-surface-variant)'}
-          onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
         >
-          <div style={{ 
-            width: '32px', 
-            height: '32px', 
-            borderRadius: '50%', 
-            background: 'linear-gradient(135deg, var(--skin-accent), var(--skin-accent-secondary))', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            color: '#ffffff', 
-            fontSize: '0.8rem', 
-            fontWeight: '900',
-            boxShadow: '0 0 8px rgba(229, 57, 53, 0.25)',
-            flexShrink: 0
-          }}>
-            FT
-          </div>
-          <div style={{ flex: 1, minWidth: 0, textAlign: 'left', display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
             <div style={{ 
-              fontSize: '0.84rem', 
-              fontWeight: '800', 
-              color: 'var(--skin-text-primary)', 
-              whiteSpace: 'nowrap', 
-              overflow: 'hidden', 
-              textOverflow: 'ellipsis' 
+              width: '32px', 
+              height: '32px', 
+              borderRadius: '50%', 
+              background: 'linear-gradient(135deg, var(--skin-accent), var(--skin-accent-secondary))', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: '#ffffff', 
+              fontSize: '0.78rem', 
+              fontWeight: '900',
+              boxShadow: '0 0 8px rgba(229, 57, 53, 0.25)',
+              flexShrink: 0
             }}>
-              Fahim Takrim
+              FT
+            </div>
+            <div style={{ minWidth: 0, textAlign: 'left' }}>
+              <div style={{ 
+                fontSize: '0.82rem', 
+                fontWeight: '800', 
+                color: 'var(--skin-text-primary)', 
+                whiteSpace: 'nowrap', 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis' 
+              }}>
+                Fahim Takrim
+              </div>
+              <div style={{
+                fontSize: '0.65rem',
+                color: 'var(--skin-text-secondary)',
+                fontWeight: '600',
+                lineHeight: '1.2'
+              }}>
+                Developer
+              </div>
             </div>
           </div>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--skin-text-secondary)" strokeWidth="2.5" style={{ flexShrink: 0 }}>
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
-          </svg>
-        </a>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+            <a 
+              href="https://x.com/TakrimFahim" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="X (Twitter): @TakrimFahim"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                color: 'var(--skin-text-secondary)',
+                background: 'var(--skin-surface-variant)',
+                border: 'var(--border-hairline) solid var(--skin-border)',
+                transition: 'all 0.2s ease',
+                textDecoration: 'none'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = 'var(--skin-text-primary)';
+                e.currentTarget.style.borderColor = 'var(--skin-text-primary)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = 'var(--skin-text-secondary)';
+                e.currentTarget.style.borderColor = 'var(--skin-border)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+
+            <a 
+              href="https://www.facebook.com/share/19bGBxQDEK/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Facebook: Fahim Takrim"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                color: 'var(--skin-text-secondary)',
+                background: 'var(--skin-surface-variant)',
+                border: 'var(--border-hairline) solid var(--skin-border)',
+                transition: 'all 0.2s ease',
+                textDecoration: 'none'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#1877F2';
+                e.currentTarget.style.borderColor = '#1877F2';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = 'var(--skin-text-secondary)';
+                e.currentTarget.style.borderColor = 'var(--skin-border)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
       </div>
 
     </div>

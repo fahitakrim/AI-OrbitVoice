@@ -46,13 +46,77 @@ const PROVIDER_METADATA = {
 
 function BrandingFooter() {
   return (
-    <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)', fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+    <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: 'var(--border-hairline) solid var(--skin-border)', fontSize: '0.78rem', color: 'var(--skin-text-secondary)', lineHeight: '1.6' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem' }}>
         <div style={{ flex: '1 1 280px' }}>
-          <div>
-            © 2026 <strong style={{ color: 'var(--text-primary)' }}>AI VoiceOrbit</strong>. Built by <a href="https://www.facebook.com/share/1F5WW35d7p/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', fontWeight: '700', textDecoration: 'underline' }}>Fahim Takrim</a>.
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.45rem' }}>
+            <span>© 2026 <strong style={{ color: 'var(--skin-text-primary)' }}>AI VoiceOrbit</strong>. Built by <strong style={{ color: 'var(--skin-text-primary)' }}>Fahim Takrim</strong></span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginLeft: '0.2rem' }}>
+              <a 
+                href="https://x.com/TakrimFahim" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="X: @TakrimFahim"
+                style={{ 
+                  color: 'var(--skin-text-secondary)', 
+                  display: 'inline-flex', 
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '6px',
+                  background: 'var(--skin-surface-variant)',
+                  border: 'var(--border-hairline) solid var(--skin-border)',
+                  transition: 'all 0.2s ease',
+                  textDecoration: 'none'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = 'var(--skin-text-primary)';
+                  e.currentTarget.style.borderColor = 'var(--skin-text-primary)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = 'var(--skin-text-secondary)';
+                  e.currentTarget.style.borderColor = 'var(--skin-border)';
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+              <a 
+                href="https://www.facebook.com/share/19bGBxQDEK/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Facebook: Fahim Takrim"
+                style={{ 
+                  color: 'var(--skin-text-secondary)', 
+                  display: 'inline-flex', 
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '6px',
+                  background: 'var(--skin-surface-variant)',
+                  border: 'var(--border-hairline) solid var(--skin-border)',
+                  transition: 'all 0.2s ease',
+                  textDecoration: 'none'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = '#1877F2';
+                  e.currentTarget.style.borderColor = '#1877F2';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = 'var(--skin-text-secondary)';
+                  e.currentTarget.style.borderColor = 'var(--skin-border)';
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+            </span>
           </div>
-          <div style={{ color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+          <div style={{ color: 'var(--skin-text-secondary)', opacity: 0.8, marginTop: '0.2rem' }}>
             Part of Orbit Apps — tools for learning, creativity, and everyday productivity.
           </div>
           <div style={{ marginTop: '0.5rem' }}>
